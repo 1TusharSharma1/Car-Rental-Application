@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Bookings & Analytics | RentO</title>
+  <link rel="stylesheet" href="styles/buyerBookings.css" />
+  <script src="js/db.js" defer></script>
+  <script src="js/buyerBookings.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header__content">
+        <a href="buyerHomePage.html" class="logo">RentO</a>
+        <nav class="nav">
+          <ul class="nav__list">
+            <li><a href="buyerHomePage.html">Browse Cars</a></li>
+            <li><a href="buyerBookings.html">My Bookings</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </nav>
+        <div class="header__profile">
+          <a href="userDashboard.html" class="profile__link">
+            <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="Profile" class="profile__icon" />
+            <span class="profile__text">Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="container">
+      <h1>My Bookings</h1>
+      <section class="analytics">
+        <div class="analytics-card" id="totalBuyerBookings">Loading bookings...</div>
+      </section>
+      <section class="bookings">
+        <h2>Bookings Made</h2>
+        <div id="buyerBookingsContainer" class="bookings-container">
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seller Dashboard | RentO</title>
+    <meta name="description" content="Manage your vehicle listings and rentals on RentO. Add new cars, view existing listings, and manage bookings." />
+
+    <link rel="stylesheet" href="styles/sellerListings.css" />
+    <script src="js/sellerListings.js"></script>
+    <script src="js/db.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="header__content">
+                <a href="./buyerHomePage.html" class="logo">
+                    <img src="https://media.istockphoto.com/id/1332607862/vector/car-rental-logo-template-design.jpg?s=612x612&w=0&k=20&c=Z7HXnGff9rQIvLWgrYT0E8oge2NMlLg5v0ZB1dCe4zM=" alt="RentO Logo" />
+                </a>
+
+                <nav class="nav">
+                    <ul class="nav__list">
+                        <li><a href="./sellerDashboard.html" class="nav__link">Dashboard</a></li>
+                        <li><a href="./sellerListings.html" class="nav__link">My Listings</a></li>
+                        <li><a href="./sellerBookings.html" class="nav__link">Bookings</a></li>
+                        <li><a href="#" class="nav__link">Support</a></li>
+                    </ul>
+                </nav>
+
+                <div class="header__profile">
+                    <a href="userDashboard.html" class="profile__link">
+                        <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="Profile" class="profile__icon" />
+                        <span class="profile__text">Profile</span>
+                    </a>
+                </div>
+
+                <button class="nav-toggle">
+                    <span class="nav-toggle__bar"></span>
+                    <span class="nav-toggle__bar"></span>
+                    <span class="nav-toggle__bar"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+    <main class="dashboard">
+        <div class="container">
+            <h1 class="dashboard__title">Your Listings</h1>
+            <p class="dashboard__subtitle">Manage all your rental cars here.</p>
+
+            <button id="addCarBtn" class="btn btn--primary">+ Add New Car</button>
+
+            <div class="car-listings">
+                <div id="carContainer" class="car-grid">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="addCarModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add New Car</h2>
+            <form id="addCarForm" class="modal-form">
+                <div class="form-group">
+                    <label for="vehicleModel">Vehicle Model</label>
+                    <input type="text" id="vehicleModel" placeholder="Enter Vehicle Model" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="minPrice">Minimum Rental Price (Rs/day)</label>
+                    <input type="number" id="minPrice" placeholder="Enter Rental Price" min="0" required />
+                </div>
+
+
+                <div class="form-group">
+                    <label for="availability">Availability</label>
+                    <select id="availability" required>
+                        <option value="Available">Available</option>
+                        <option value="Unavailable">Unavailable</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="Enter Car Location" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="features">Features</label>
+                    <textarea id="features" placeholder="List features separated by commas" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="superCategory">Super Category</label>
+                    <select id="superCategory" required>
+                        <option value="">Select Super Category</option>
+                    </select>
+
+
+                    <div id="otherSuperCategoryWrapper" style="display: none;">
+                        <label for="otherSuperCategoryInput">Enter New Super Category Name</label>
+                        <input type="text" id="otherSuperCategoryInput" />
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                    </select>
+
+
+                    <div id="otherCategoryWrapper" style="display: none;">
+                        <label for="otherCategoryInput">Enter New Category Name</label>
+                        <input type="text" id="otherCategoryInput" />
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="imageUpload">Upload Car Images</label>
+                    <input type="file" id="imageUpload" accept="image/*" multiple required />
+                    <div id="imagePreview"></div>
+                </div>
+
+
+                <button type="submit" class="btn btn--primary">Add Car</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

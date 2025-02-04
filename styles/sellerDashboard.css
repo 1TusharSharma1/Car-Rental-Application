@@ -1,0 +1,99 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #007bff;
+    color: white;
+    padding: 15px 20px;
+}
+
+.header h1 {
+    font-size: 24px;
+}
+
+nav {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    background: white;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.btn.active {
+    background: #0056b3;
+    color: white;
+}
+
+.btn:hover {
+    background: #0056b3;
+    color: white;
+}
+
+#bidsContainer {
+    margin-top: 20px;
+}
+
+.bid-card {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.bid-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.btn--accept {
+    background: #28a745;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.btn--reject {
+    background: #dc3545;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn--accept:hover {
+    background: #218838;
+}
+
+.btn--reject:hover {
+    background: #c82333;
+}

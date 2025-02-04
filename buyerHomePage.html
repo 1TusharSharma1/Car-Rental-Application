@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RentO | Browse Cars</title>
+  <meta name="description" content="Browse and rent cars available on RentO from verified sellers.">
+  <link rel="stylesheet" href="styles/buyerHomePage.css">
+  <script src="js/db.js"></script>
+  <script src="js/buyerHomePage.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header__content">
+        <a href="#" class="logo">
+          <img src="https://media.istockphoto.com/id/1332607862/vector/car-rental-logo-template-design.jpg?s=612x612&w=0&k=20&c=Z7HXnGff9rQIvLWgrYT0E8oge2NMlLg5v0ZB1dCe4zM=" alt="RentO Logo">
+        </a>
+        <nav class="nav">
+          <ul class="nav__list">
+            <li><a href="#" class="nav__link">Browse Cars</a></li>
+            <li><a href="buyerBookings.html" class="nav__link">Your Bookings</a></li>
+            <li><a href="#" class="nav__link">Deals</a></li>
+            <li><a href="./conversations.html" class="nav__link">Messages</a></li>
+          </ul>
+        </nav>
+        <div class="header__profile">
+          <a href="userDashboard.html" class="profile__link">
+            <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="User Profile" class="profile__icon">
+            <span class="profile__text">Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero__content">
+        <h1 class="hero__title">Find Your Perfect Ride</h1>
+        <p class="hero__subtitle">Explore all available cars for rent.</p>
+      </div>
+    </section>
+
+    <section class="filter-bar">
+      <div class="container">
+        <form class="filter-form" id="carFilterForm">
+          <div class="form-group">
+            <label for="filterSuperCategory" class="form-label">Vehicle Type</label>
+            <select id="filterSuperCategory" class="form-select">
+              <option value="">All Types</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filterCategory" class="form-label">Category</label>
+            <select id="filterCategory" class="form-select">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filterLocation" class="form-label">Location</label>
+            <select id="filterLocation" class="form-select">
+              <option value="">All Locations</option>
+            </select>
+            <!-- <button type="button" id="useMyLocation" class="btn btn--secondary">Use My Location</button> -->
+          </div>
+          <div class="form-group price-range">
+            <label class="form-label">Price Range (Rs/day)</label>
+            <div class="price-inputs">
+              <input type="number" id="filterMinPrice" class="form-input" placeholder="Min Price" min="0">
+              <span> - </span>
+              <input type="number" id="filterMaxPrice" class="form-input" placeholder="Max Price" min="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="filterAvailability" class="form-label">Availability</label>
+            <select id="filterAvailability" class="form-select">
+              <option value="">All</option>
+              <option value="Available">Available</option>
+              <option value="Unavailable">Unavailable</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sortBy" class="form-label">Sort By</label>
+            <select id="sortBy" class="form-select">
+              <option value="newest">Newest</option>
+              <option value="priceLowHigh">Price: Low to High</option>
+              <option value="priceHighLow">Price: High to Low</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn--primary btn--large">Apply Filters</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="available-cars">
+      <div class="container">
+        <h2 class="section-title">Available Cars</h2>
+        <div id="carContainer" class="car-grid">
+          <p>Loading cars...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="special-offers">
+      <div class="container">
+        <h2 class="section-title">Special Offers</h2>
+        <div class="offers-grid">
+          <div class="offer-card">
+            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3" alt="Weekend Getaway" class="offer-card__image">
+            <div class="offer-card__content">
+              <h3 class="offer-card__title">Weekend Getaway</h3>
+              <p class="offer-card__description">Save up to 20% on weekend rentals</p>
+              <a href="#" class="btn btn--primary">Learn More</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 RentO. All rights reserved.</p>
+    </div>
+  </footer>
+
+  
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Sign Up - RentO</title>
+    <link rel="stylesheet" href="styles/auth.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+</head>
+<body>
+    <div class="auth-container">
+        <h1 class="auth-title">Become a Seller</h1>
+
+        <form id="seller-signup-form" class="auth-form">
+            <input type="email" id="sellerEmail" class="auth-input" placeholder="Enter Registered Email" required />
+            <input type="text" id="businessName" class="auth-input" placeholder="User Name / Business Name" required />
+            <h3 style="margin: 0%;" class="auth-subtitle">Business Address</h3>
+            <input type="text" id="line1" class="auth-input" placeholder="Address Line 1" required />
+            <input type="text" id="line2" class="auth-input" placeholder="Address Line 2 (Optional)" />
+            <input type="text" id="city" class="auth-input" placeholder="City" required />
+            <input type="text" id="state" class="auth-input" placeholder="State" required />
+            <input type="text" id="pincode" class="auth-input" placeholder="Pincode" required />
+
+            <h3 style="margin: 0%;" class="auth-subtitle">Set Your Password</h3>
+            <input type="password" id="signUpPassword" class="auth-input" placeholder="Enter Password" required />
+            <input type="password" id="confirmedSignUpPassword" class="auth-input" placeholder="Confirm Password" required />
+
+            <button type="submit" class="auth-button">Register as Seller</button>
+            <p class="auth-text">Already a seller? <a href="login.html" class="auth-link">Login</a></p>
+        </form>
+    </div>
+</body>
+</html>

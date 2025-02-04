@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Details | RentO</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="styles/carDetails.css">
+  <script src="js/db.js" ></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="js/carDetails.js" ></script>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header__content">
+        <a href="buyerHomePage.html" class="logo">RentO</a>
+        <nav class="nav">
+          <ul class="nav__list">
+            <li><a href="buyerHomePage.html">Browse Cars</a></li>
+            <li><a href="#">Deals</a></li>
+            <li><a href="./conversations.html" class="nav__link">Messages</a></li>
+
+          </ul>
+        </nav>
+        <div class="header__profile">
+          <a href="userDashboard.html" class="profile__link">
+            <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="Profile" class="profile__icon">
+            <span class="profile__text">Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="car-details">
+    <div class="container">
+      <div class="car-details__content">
+        <div class="car-images">
+          <img id="mainCarImage" src="placeholder.jpg" alt="Car Image">
+          <div class="thumbnail-container" id="carThumbnails"></div>
+        </div>
+
+        <div class="car-info">
+          <h1 id="carTitle">Car Model</h1>
+          <p><strong>Location:</strong> <span id="carLocation"></span></p>
+          <p><strong>Price:</strong> Rs <span id="carPrice"></span> /day</p>
+          <p><strong>Availability:</strong> <span id="carAvailability"></span></p>
+          <p><strong>Features:</strong> <span id="carFeatures"></span></p>
+        </div>
+
+        <div class="bidding-info">
+          <h2>Bidding Details</h2>
+          <p><strong>Highest Bid:</strong> Rs <span id="highestBid">No bids yet</span></p>
+          <button id="placeBidBtn" class="btn btn--primary">Place a Bid</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="bidModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-btn" style="cursor: pointer;">&times;</span>
+      <h2>Place Your Bid</h2>
+      <form id="bidForm">
+        <input type="hidden" id="vehicleId">
+        <div class="form-group">
+          <label for="bidAmount">Bid Amount (Rs):</label>
+          <input type="number" id="bidAmount" required min="1">
+          <p id="minBidAmount">Minimum Bid: Rs 0</p>
+        </div>
+        <div class="form-group">
+          <label for="bidStartDate">Booking Start Date:</label>
+          <input type="text" id="bidStartDate" required>
+        </div>
+        <div class="form-group">
+          <label for="bidEndDate">Booking End Date:</label>
+          <input type="text" id="bidEndDate" required>
+        </div>
+        <button type="submit" class="btn btn--primary">Submit Bid</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin Dashboard | RentO</title>
+  <link rel="stylesheet" href="styles/superAdmin.css">
+  <script src="js/db.js" defer></script>
+  <script src="js/superAdmin.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header__content">
+        <a href="#" class="logo">
+          <img src="https://media.istockphoto.com/id/1332607862/vector/car-rental-logo-template-design.jpg?s=612x612&w=0&k=20&c=Z7HXnGff9rQIvLWgrYT0E8oge2NMlLg5v0ZB1dCe4zM=" alt="RentO Logo">
+        </a>
+        <nav class="nav">
+          <ul class="nav__list">
+            <li><a href="#" class="nav__link">Dashboard</a></li>
+            <li><a href="superAdmin.html" class="nav__link active">Admin</a></li>
+            <li><a href="#" class="nav__link">Reports</a></li>
+            <li><a href="#" class="nav__link">Settings</a></li>
+          </ul>
+        </nav>
+        <div class="header__profile">
+          <a href="superAdmin.html" class="profile__link">
+            <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="Admin Profile" class="profile__icon">
+            <span class="profile__text">Admin</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <div class="container">
+      <h1 class="dashboard-title">Super Admin Dashboard</h1>
+      
+      <section class="analytics">
+        <div class="analytics-card" id="totalUsers">Total Users: Loading...</div>
+        <div class="analytics-card" id="totalVehicles">Total Vehicles: Loading...</div>
+        <div class="analytics-card" id="totalBookings">Total Bookings: Loading...</div>
+        <div class="analytics-card" id="totalBids">Total Bids: Loading...</div>
+        <div class="analytics-card" id="totalMessages">Total Messages: Loading...</div>
+      </section>
+
+      <section class="users">
+        <h2>All Users</h2>
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role(s)</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </section>
+
+      <button onclick="logout()" class="dashboard-logout">Logout</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 RentO. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
