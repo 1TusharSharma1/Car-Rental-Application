@@ -10,6 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
         applyFilters();
       });
     }
+    const superCategorySelect = document.getElementById("filterSuperCategory");
+    superCategorySelect.addEventListener("change", () => {
+      const selectedSuperCategory = superCategorySelect.value;
+      console.log("Selected SuperCategory:", selectedSuperCategory);
+      loadCategories(selectedSuperCategory);
+    });
   });
   
   function loadSuperCategories() {
@@ -25,27 +31,35 @@ document.addEventListener("DOMContentLoaded", () => {
           filterSuperCategory.innerHTML += `<option value="${category.supercategory_id}">${category.superCategory_name}</option>`;
         });
       };
+      request.onerror = (event) => {
+        console.error("Error loading super categories:", event.target.error);
+      };
     });
   }
   
-  document.getElementById("filterSuperCategory").addEventListener("change", () => {
-    const selectedSuperCategory = document.getElementById("filterSuperCategory").value;
-    loadCategories(selectedSuperCategory);
-  });
-  
   function loadCategories(superCategoryId) {
+    const filterCategory = document.getElementById("filterCategory");
+    if (!superCategoryId) {
+      filterCategory.innerHTML = `<option value="">All Categories</option>`;
+      return;
+    }
+    
     openDB(() => {
       const transaction = db.transaction(["categories"], "readonly");
       const store = transaction.objectStore("categories");
       const index = store.index("supercategory_id");
+      console.log("Querying categories with supercategory_id:", superCategoryId);
       const request = index.getAll(superCategoryId);
       request.onsuccess = (event) => {
         const categories = event.target.result;
-        const filterCategory = document.getElementById("filterCategory");
+        console.log("Categories returned:", categories);
         filterCategory.innerHTML = `<option value="">All Categories</option>`;
         categories.forEach(category => {
           filterCategory.innerHTML += `<option value="${category.category_id}">${category.category_name}</option>`;
         });
+      };
+      request.onerror = (event) => {
+        console.error("Error fetching categories:", event.target.error);
       };
     });
   }
@@ -54,12 +68,10 @@ document.addEventListener("DOMContentLoaded", () => {
     openDB(() => {
       const transaction = db.transaction(["vehicles"], "readonly");
       const store = transaction.objectStore("vehicles");
-      // Using getAll from the vehicles store
       const request = store.getAll();
       request.onsuccess = (event) => {
         const vehicles = event.target.result;
         const filterLocation = document.getElementById("filterLocation");
-        // Get unique locations from the vehicles array
         const uniqueLocations = [...new Set(vehicles.map(car => car.location))];
         filterLocation.innerHTML = `<option value="">All Locations</option>`;
         uniqueLocations.forEach(location => {
@@ -85,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
           carContainer.innerHTML = "<p>No cars available at the moment.</p>";
           return;
         }
-        // Apply filters
         if (filters.superCategory) {
           cars = cars.filter(car => car.supercategory_id === filters.superCategory);
         }
@@ -104,16 +115,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (filters.availability) {
           cars = cars.filter(car => car.availability === filters.availability);
         }
-        // Sort cars
         if (filters.sortBy === "priceLowHigh") {
           cars.sort((a, b) => a.minimum_rental_price - b.minimum_rental_price);
         } else if (filters.sortBy === "priceHighLow") {
           cars.sort((a, b) => b.minimum_rental_price - a.minimum_rental_price);
         } else if (filters.sortBy === "newest") {
-          // Assume newer cars have a more recent uploaded_at date
           cars.sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at));
         }
-        // Display cars
         cars.forEach((car) => {
           const carCard = document.createElement("div");
           carCard.classList.add("car-card");
@@ -157,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
       availability: document.getElementById("filterAvailability").value,
       sortBy: document.getElementById("sortBy").value
     };
+    console.log("Filters applied:", filters);
     loadAvailableCars(filters);
   }
   
