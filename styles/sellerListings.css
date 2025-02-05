@@ -161,6 +161,10 @@ body {
     transition: 0.3s ease;
 }
 
+#categoryRow {
+    display: none;
+  }
+
 .btn--primary {
     background-color: #3498db;
     color: white;

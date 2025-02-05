@@ -1,8 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Load active bids on page load
+
+    const user = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if (!user) {
+    window.location.href = "login.html";
+  }
+
     loadBids("Active");
   
-    // Set up bid filter button events
     document.getElementById("showActiveBids").addEventListener("click", () => {
       setActiveButton("showActiveBids");
       loadBids("Active");
@@ -15,18 +19,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   function setActiveButton(activeButtonId) {
-    // Remove active class from both buttons, then add to the selected one
     document.getElementById("showActiveBids").classList.remove("active");
     document.getElementById("showInactiveBids").classList.remove("active");
     document.getElementById(activeButtonId).classList.add("active");
-  
-    // Update the bids section title
-    document.getElementById("bidTitle").innerText =
+      document.getElementById("bidTitle").innerText =
       activeButtonId === "showActiveBids" ? "Active Bids" : "Inactive Bids";
   }
   
   function loadBids(status) {
-    // Retrieve logged-in seller data from sessionStorage
     const seller = JSON.parse(sessionStorage.getItem("loggedInUser"));
     if (!seller) {
       alert("Please log in first.");
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   
     openDB(() => {
-      // Ensure the "bidding" store exists
       if (!db.objectStoreNames.contains("bidding")) {
         console.error("Object store 'bidding' not found.");
         return;
@@ -44,14 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const transaction = db.transaction(["bidding"], "readonly");
       const store = transaction.objectStore("bidding");
       const index = store.index("seller_id");
-      // Open a cursor that returns bids for the current seller
       const request = index.openCursor(IDBKeyRange.only(seller.user_id));
       let bids = [];
   
       request.onsuccess = (event) => {
         const cursor = event.target.result;
         if (cursor) {
-          // Only include bids that match the specified status
           if (cursor.value.bid_status === status) {
             bids.push(cursor.value);
           }
@@ -76,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
   
-    // For each bid, fetch the vehicle details to display the vehicle name
     bids.forEach(bid => {
       getVehicleDetails(bid.vehicle_id)
         .then(vehicle => {

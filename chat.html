@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chat Conversation | RentO</title>
   <link rel="stylesheet" href="styles/chat.css">
-  <script src="js/db.js" ></script>
-  <script src="js/chat.js"></script>
+  <script src="js/db.js" defer></script>
+  <script src="js/chat.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header class="header">
@@ -17,8 +18,10 @@
         </a>
         <nav class="nav">
           <ul class="nav__list">
-            <li><a href="buyerHomePage.html" class="nav__link">Browse Cars</a></li>
-            <li><a href="conversations.html" class="nav__link">Messaging</a></li>
+            <button id="backToConversationsBtn" class="btn btn--secondary" style="margin-left: 1rem;">
+              Back to Conversations
+            </button>
+            
 
           </ul>
         </nav>
@@ -40,9 +43,23 @@
       </div>
       <form id="messageForm" class="message-form">
         <input type="text" id="messageInput" placeholder="Type your message..." required>
+        <input type="file" id="attachmentInput" accept="image/*">
         <button type="submit" class="btn btn--primary">Send</button>
       </form>
+      <!-- <button id="rebidButton" class="btn btn--secondary" onclick="openRebidModal()">Rebid via Chat</button> -->
     </div>
   </main>
+
+  <div id="rebidModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeRebidModal()">&times;</span>
+      <h2>Rebid</h2>
+      <form id="rebidForm">
+        <label for="newBidAmount">New Bid Amount (Rs):</label>
+        <input type="number" id="newBidAmount" required min="1">
+        <button type="submit" class="btn btn--primary">Submit Rebid</button>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

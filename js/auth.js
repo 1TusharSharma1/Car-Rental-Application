@@ -4,11 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const sellerForm = document.getElementById("seller-signup-form");
     const goToLogin = document.getElementById("goToLogin");
     const goToSignUp = document.getElementById("goToSignUp");
-
     if (loginForm) loginForm.addEventListener("submit", loginUser);
     if (buyerForm) buyerForm.addEventListener("submit", signUpBuyer);
     if (sellerForm) sellerForm.addEventListener("submit", signUpSeller);
-    
     if (goToLogin) goToLogin.addEventListener("click", () => toggleForms("login"));
     if (goToSignUp) goToSignUp.addEventListener("click", () => toggleForms("signup"));
 });
@@ -44,26 +42,28 @@ function signUpBuyer(event) {
     const password = document.getElementById("signUpPassword").value;
     const confirmPassword = document.getElementById("confirmedSignUpPassword").value;
 
+    // Validate email
     const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-        alert("   Invalid email format! Example: user@example.com");
+        alert("Invalid email format! Example: user@example.com");
         return;
     }
 
+    // Validate username
     const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
     if (!usernameRegex.test(username)) {
-        alert("   Username must be 3-20 characters long and can contain letters, numbers, and underscores.");
+        alert("Username must be 3-20 characters long and can contain letters, numbers, and underscores.");
         return;
     }
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
     if (!passwordRegex.test(password)) {
-        alert("   Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character.");
+        alert("Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character.");
         return;
     }
 
     if (password !== confirmPassword) {
-        alert("   Passwords do not match!");
+        alert("Passwords do not match!");
         return;
     }
 
@@ -73,7 +73,7 @@ function signUpBuyer(event) {
 
         usersStore.index("email").get(email).onsuccess = (event) => {
             if (event.target.result) {
-                alert("   Email already registered!");
+                alert("Email already registered!");
                 return;
             } 
 
@@ -82,7 +82,7 @@ function signUpBuyer(event) {
                 user_id: userId,
                 email: email,
                 username: username,
-                password: hashPassword(password), 
+                password: hashPassword(password),
                 photoURL: "https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp",
                 user_role: ["buyer"],
                 created_at: new Date().toISOString(),
@@ -92,19 +92,20 @@ function signUpBuyer(event) {
             const addRequest = usersStore.add(newUser);
 
             addRequest.onsuccess = () => {
-                alert("   Signup successful! Please log in.");
-                toggleForms("login");
+                sessionStorage.setItem("loggedInUser", JSON.stringify(newUser));
+                alert("Signup successful! Redirecting to your buyer homepage...");
+                window.location.href = "buyerHomepage.html";
             };
 
             addRequest.onerror = (event) => {
-                console.error("   Error adding user:", event.target.error);
-                alert("    Error signing up! Please try again.");
+                console.error("Error adding user:", event.target.error);
+                alert("Error signing up! Please try again.");
             };
         };
 
         transaction.onerror = (event) => {
-            console.error("   Transaction failed:", event.target.error);
-            alert("    Database transaction error. Please refresh and try again.");
+            console.error("Transaction failed:", event.target.error);
+            alert("Database transaction error. Please refresh and try again.");
         };
     });
 }
@@ -142,10 +143,8 @@ function loginUser(event) {
 
 
             sessionStorage.setItem("loggedInUser", JSON.stringify(user));
-
-            if (user.user_role.includes("admin")) {
-                window.location.href = "adminDashboard.html";
-            } else if (user.user_role.includes("seller")) {
+            
+            if (user.user_role.includes("seller")) {
                 window.location.href = "sellerDashboard.html";
             } else if (user.user_role.includes("buyer")) {
                 window.location.href = "buyerHomepage.html";
@@ -177,33 +176,34 @@ function signUpSeller(event) {
     const pincode = document.getElementById("pincode").value.trim();
 
     if (!email || !businessName || !password || !confirmPassword || !line1 || !city || !state || !pincode) {
-        alert(" All fields are required!");
+        alert("All fields are required!");
         return;
     }
 
+    // Validate email
     const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-        alert("   Invalid email format! Example: user@example.com");
+        alert("Invalid email format! Example: user@example.com");
         return;
     }
 
+    // Validate business name
     if (businessName.length < 3) {
-        alert("   Business name must be at least 3 characters long.");
+        alert("Business name must be at least 3 characters long.");
         return;
     }
 
+    // Validate password
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
     if (!passwordRegex.test(password)) {
-        alert("   Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character.");
+        alert("Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character.");
         return;
     }
 
     if (password !== confirmPassword) {
-        alert("   Passwords do not match!");
+        alert("Passwords do not match!");
         return;
     }
-
-    
 
     openDB(() => {
         const transaction = db.transaction(["users", "addresses"], "readwrite");
@@ -236,9 +236,10 @@ function signUpSeller(event) {
                 addressesStore.add(addressData);
                 user.address_id = addressId;
                 usersStore.put(user);
-
-                alert(" Seller role added to your profile!");
+                sessionStorage.setItem("loggedInUser", JSON.stringify(user));
+                alert("Seller role added! Redirecting to seller dashboard...");
                 window.location.href = "sellerDashboard.html";
+
             } else {
                 const userId = crypto.randomUUID();
                 const addressId = crypto.randomUUID();
@@ -268,13 +269,15 @@ function signUpSeller(event) {
                 addressesStore.add(addressData);
                 usersStore.add(newUser);
 
-                alert(" Seller registration successful! Please login.");
-                window.location.href = "login.html";
+                sessionStorage.setItem("loggedInUser", JSON.stringify(newUser));
+                alert("Seller registration successful! Redirecting to seller dashboard...");
+                window.location.href = "sellerDashboard.html";
             }
         };
 
         transaction.onerror = (event) => {
-            console.error(" Transaction failed:", event.target.error);
+            console.error("Transaction failed:", event.target.error);
         };
     });
 }
+
