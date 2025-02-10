@@ -1,20 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
-  loadSellerAnalytics();
-  loadSellerBookings();
-});
-
-// ---------------------
-// Seller Analytics Functions
-// ---------------------
-function loadSellerAnalytics() {
   const seller = JSON.parse(sessionStorage.getItem("loggedInUser"));
-  if (!seller) {
-    alert("Please log in.");
+  if (!seller || !Array.isArray(seller.user_role) || !seller.user_role.includes("seller")) {
     window.location.href = "login.html";
     return;
   }
 
-  // Query vehicles for this seller
+  loadSellerAnalytics();
+  loadSellerBookings();
+});
+
+function loadSellerAnalytics() {
+  const seller = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if (!seller) {
+    window.location.href = "login.html";
+    return;
+  }
+
   openDB(() => {
     let vehicleCount = 0;
     if (db.objectStoreNames.contains("vehicles")) {
@@ -34,7 +35,6 @@ function loadSellerAnalytics() {
     }
   });
 
-  // Query bookings for this seller
   openDB(() => {
     if (!db.objectStoreNames.contains("bookings")) {
       console.error("Bookings store not found.");

@@ -33,9 +33,10 @@ function loadCarDetails() {
       document.getElementById("minBidAmount").innerText = `Minimum Bid: Rs ${car.minimum_rental_price}`;
       document.getElementById("minBidAmount").dataset.minPrice = car.minimum_rental_price;
       document.getElementById("vehicleId").value = car.vehicle_id;
+
       const images = JSON.parse(car.images_URL);
       const mainImageEl = document.getElementById("mainCarImage");
-      mainImageEl.src = images[0] || "placeholder.jpg";
+      mainImageEl.src = images[0] || "https://via.placeholder.com/400";
       const thumbnailContainer = document.getElementById("carThumbnails");
       thumbnailContainer.innerHTML = "";
       images.forEach((imgSrc) => {
@@ -83,6 +84,8 @@ function openBidModal() {
     alert("Please log in to place a bid.");
     return;
   }
+  document.getElementById("dlInputContainer").style.display = loggedInUser.user_govtId ? "none" : "block";
+
   document.getElementById("bidModal").style.display = "flex";
   const vehicleId = document.getElementById("vehicleId").value;
   initDatePickers(vehicleId);
@@ -101,6 +104,7 @@ async function placeBid(event) {
   const vehicleId = document.getElementById("vehicleId").value;
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   const minBid = Number(document.getElementById("minBidAmount").dataset.minPrice);
+  
   if (!loggedInUser) {
     alert("You must be logged in to place a bid.");
     return;
@@ -113,6 +117,21 @@ async function placeBid(event) {
     alert(`Your bid must be at least Rs ${minBid}!`);
     return;
   }
+  if (!loggedInUser.user_govtId) {
+    const driverLicenseInput = document.getElementById("driverLicense").value;
+    if (!driverLicenseInput) {
+      alert("Please enter your Driver License details.");
+      return;
+    }
+    loggedInUser.user_govtId = driverLicenseInput;
+    sessionStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+    openDB(() => {
+      const tx = db.transaction(["users"], "readwrite");
+      const store = tx.objectStore("users");
+      store.put(loggedInUser);
+    });
+  }
+  
   try {
     const sellerId = await getVehicleOwner(vehicleId);
     const bidData = {
@@ -126,6 +145,14 @@ async function placeBid(event) {
       booking_start_date: bidStartDate,
       booking_end_date: bidEndDate,
     };
+    if(bidStartDate < bidEndDate) {
+      alert("Booking start date must be before booking end date.");
+      return;
+    }
+    if( bidder_id === seller_id ){
+      alert("You cannot bid on your own vehicle.");
+      return;
+    }
     openDB(() => {
       const tx = db.transaction(["bidding"], "readwrite");
       const store = tx.objectStore("bidding");
@@ -133,12 +160,11 @@ async function placeBid(event) {
       addRequest.onsuccess = () => {
         alert("Your bid has been placed successfully!");
         createConversationIfNotExists(bidData)
-          .then(() => {
-            sendAutoMessage(bidData);
-          })
+          .then(() => sendAutoMessage(bidData))
           .catch(err => console.error("Error creating conversation:", err));
         closeBidModal();
         loadBiddingDetails(vehicleId);
+        window.location.href = `chat.html?conversationId=${bidData.vehicle_id}_${bidData.bidder_id}_${bidData.seller_id}`;
       };
       addRequest.onerror = () => {
         alert("Error placing bid. Try again.");
@@ -160,7 +186,7 @@ function createConversationIfNotExists(bidData) {
       request.onsuccess = (event) => {
         if (!event.target.result) {
           const conversationRecord = {
-            conversation_id: conversation_id,
+            conversation_id,
             sender_id: bidData.bidder_id,
             receiver_id: bidData.seller_id,
             vehicle_id: bidData.vehicle_id,
@@ -182,7 +208,7 @@ function createConversationIfNotExists(bidData) {
 function sendAutoMessage(bidData) {
   const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   if (!currentUser) return;
-  const autoMessage = "Hi, I've placed a bid on your car. Please review my offer.";
+  const autoMessage = `Hi, I've placed a bid of Rs ${bidData.bid_amount} for booking from ${bidData.booking_start_date} to ${bidData.booking_end_date}. Please review my offer.`;
   const messageData = {
     message_id: crypto.randomUUID(),
     conversation_id: `${bidData.vehicle_id}_${bidData.bidder_id}_${bidData.seller_id}`,
@@ -194,16 +220,13 @@ function sendAutoMessage(bidData) {
     attachment_url: "",
     status: "sent"
   };
+  
   openDB(() => {
     const tx = db.transaction(["messages"], "readwrite");
     const store = tx.objectStore("messages");
     const request = store.add(messageData);
-    request.onsuccess = () => {
-      console.log("Automated message sent successfully.");
-    };
-    request.onerror = (event) => {
-      console.error("Error sending automated message:", event.target.error);
-    };
+    request.onsuccess = () => console.log("Automated message sent successfully.");
+    request.onerror = (event) => console.error("Error sending automated message:", event.target.error);
   });
 }
 
@@ -241,9 +264,7 @@ function getConfirmedBookings(vehicleId) {
         const confirmed = allBookings.filter(booking => booking.status === "Confirmed");
         resolve(confirmed);
       };
-      request.onerror = (event) => {
-        reject(event.target.error);
-      };
+      request.onerror = (event) => reject(event.target.error);
     });
   });
 }
@@ -256,7 +277,6 @@ async function initDatePickers(vehicleId) {
       to: booking.booking_end_date
     }));
     console.log("Disabled date ranges:", disabledRanges);
-    
     const commonOptions = {
       dateFormat: "Y-m-d",
       disable: disabledRanges,
@@ -268,14 +288,12 @@ async function initDatePickers(vehicleId) {
         }
       }
     };
-    
     flatpickr("#bidStartDate", commonOptions);
     flatpickr("#bidEndDate", commonOptions);
   } catch (error) {
     console.error("Error initializing date pickers:", error);
   }
 }
-
 
 function chatWithOwner() {
   const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
@@ -284,32 +302,34 @@ function chatWithOwner() {
     return;
   }
   const vehicleId = document.getElementById("vehicleId").value;
-  getVehicleOwner(vehicleId).then(sellerId => {
-    const conversationId = `${vehicleId}_${currentUser.user_id}_${sellerId}`;
-    openDB(() => {
-      const tx = db.transaction(["conversations"], "readwrite");
-      const store = tx.objectStore("conversations");
-      const req = store.get(conversationId);
-      req.onsuccess = (event) => {
-        if (!event.target.result) {
-          const convRecord = {
-            conversation_id: conversationId,
-            sender_id: currentUser.user_id,
-            receiver_id: sellerId,
-            vehicle_id: vehicleId,
-            isUnread: true,
-            updated_at: new Date().toISOString()
-          };
-          store.add(convRecord).onsuccess = () => {
+  getVehicleOwner(vehicleId)
+    .then(sellerId => {
+      const conversationId = `${vehicleId}_${currentUser.user_id}_${sellerId}`;
+      openDB(() => {
+        const tx = db.transaction(["conversations"], "readwrite");
+        const store = tx.objectStore("conversations");
+        const req = store.get(conversationId);
+        req.onsuccess = (event) => {
+          if (!event.target.result) {
+            const convRecord = {
+              conversation_id: conversationId,
+              sender_id: currentUser.user_id,
+              receiver_id: sellerId,
+              vehicle_id: vehicleId,
+              isUnread: true,
+              updated_at: new Date().toISOString()
+            };
+            store.add(convRecord).onsuccess = () => {
+              window.location.href = `chat.html?conversationId=${conversationId}`;
+            };
+          } else {
             window.location.href = `chat.html?conversationId=${conversationId}`;
-          };
-        } else {
-          window.location.href = `chat.html?conversationId=${conversationId}`;
-        }
-      };
+          }
+        };
+      });
+    })
+    .catch(err => {
+      console.error("Error fetching seller ID:", err);
+      alert("Error initiating chat. Please try again.");
     });
-  }).catch(err => {
-    console.error("Error fetching seller ID:", err);
-    alert("Error initiating chat. Please try again.");
-  });
 }

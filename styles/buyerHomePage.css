@@ -283,7 +283,7 @@ a:focus {
     transform: translateY(0);
   }
 }
-/* ---------- Enhanced Filter Bar ---------- */
+
 .filter-bar {
   background-color: var(--color-background);
   padding: 3rem 0;

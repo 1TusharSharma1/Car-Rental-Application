@@ -112,9 +112,6 @@ body {
   border-color: var(--color-primary);
 }
 
-.profile__text {
-  /* font-size: 1.6rem; */
-}
 
 .dashboard {
   padding: 2rem 0;

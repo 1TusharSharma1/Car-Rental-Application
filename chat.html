@@ -18,9 +18,7 @@
         </a>
         <nav class="nav">
           <ul class="nav__list">
-            <button id="backToConversationsBtn" class="btn btn--secondary" style="margin-left: 1rem;">
-              Back to Conversations
-            </button>
+          
             
 
           </ul>
@@ -36,7 +34,11 @@
   </header>
 
   <main class="chat">
+    <button id="backToConversationsBtn" class="btn btn--secondary" style="margin-left: 1rem;">
+      Back to Conversations
+    </button>
     <div class="container chat-container">
+      
       <div class="chat-header" id="chatHeader">
       </div>
       <div class="messages-container" id="messagesContainer">
@@ -46,20 +48,9 @@
         <input type="file" id="attachmentInput" accept="image/*">
         <button type="submit" class="btn btn--primary">Send</button>
       </form>
-      <!-- <button id="rebidButton" class="btn btn--secondary" onclick="openRebidModal()">Rebid via Chat</button> -->
+  
     </div>
   </main>
 
-  <div id="rebidModal" class="modal" style="display: none;">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeRebidModal()">&times;</span>
-      <h2>Rebid</h2>
-      <form id="rebidForm">
-        <label for="newBidAmount">New Bid Amount (Rs):</label>
-        <input type="number" id="newBidAmount" required min="1">
-        <button type="submit" class="btn btn--primary">Submit Rebid</button>
-      </form>
-    </div>
-  </div>
 </body>
 </html>

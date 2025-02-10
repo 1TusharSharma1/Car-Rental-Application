@@ -5,7 +5,6 @@ let db;
 
 function openDB(callback) {
   if (db) {
-    console.log("📌 IndexedDB already initialized.");
     if (callback) callback();
     return;
   }
@@ -91,7 +90,6 @@ function openDB(callback) {
 
   request.onsuccess = function (event) {
     db = event.target.result;
-    console.log("✅ Database Connected:", db.name);
     if (callback) callback();
   };
 

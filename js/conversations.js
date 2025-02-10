@@ -1,22 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const backBtn = document.getElementById("backBtn");
-  if (backBtn) {
-    backBtn.addEventListener("click", () => {
-      window.history.go(-2);
-    
-    });
-  }
-  loadConversations();
-});
 
-function loadConversations() {
   const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   if (!currentUser) {
     alert("Please log in.");
     window.location.href = "login.html";
     return;
   }
+  loadConversations();
 
+  document.getElementById("backBtn").addEventListener("click", () => {
+    window.history.go(-2);
+  });
+});
+
+function loadConversations() {
+  const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   openDB(() => {
     if (!db.objectStoreNames.contains("conversations")) {
       console.error("Conversations store not found.");
@@ -24,89 +22,33 @@ function loadConversations() {
     }
     const tx = db.transaction(["conversations"], "readonly");
     const store = tx.objectStore("conversations");
-    const request = store.getAll();
-
-    request.onsuccess = (event) => {
-      let convs = event.target.result;
-      if (!convs || convs.length === 0) {
-        console.log("No conversation records found. Generating from messages...");
-        createConversationsFromMessages()
-          .then(newConvs => {
-            convs = newConvs;
-            displayConversations(filterUserConversations(convs, currentUser));
-          })
-          .catch(err => console.error("Error generating conversations:", err));
-      } else {
-        displayConversations(filterUserConversations(convs, currentUser));
-      }
-    };
-
-    request.onerror = (event) => {
-      console.error("Error fetching conversations:", event.target.error);
-    };
-  });
-}
-
-function filterUserConversations(convs, currentUser) {
-  return convs.filter(conv =>
-    conv.sender_id === currentUser.user_id || conv.receiver_id === currentUser.user_id
-  );
-}
-
-function createConversationsFromMessages() {
-  return new Promise((resolve, reject) => {
-    openDB(() => {
-      if (!db.objectStoreNames.contains("messages")) {
-        return reject("Messages store not found.");
-      }
-      const tx = db.transaction(["messages"], "readonly");
-      const store = tx.objectStore("messages");
-      const request = store.getAll();
-
-      request.onsuccess = (event) => {
-        const messages = event.target.result;
-        const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-        const convMap = {};
-        messages.forEach(msg => {
-          if (msg.sender_id !== currentUser.user_id && msg.receiver_id !== currentUser.user_id) {
-            return;
-          }
-          const otherPartyId = (msg.sender_id === currentUser.user_id) ? msg.receiver_id : msg.sender_id;
-          const convKey = `${msg.vehicle_id}_${otherPartyId}`;
-          if (!convMap[convKey]) {
-            convMap[convKey] = {
-              conversation_id: convKey,
-              sender_id: currentUser.user_id,
-              receiver_id: otherPartyId,
-              vehicle_id: msg.vehicle_id,
-              isUnread: true,
-              updated_at: msg.timestamp
-            };
-          } else {
-            if (new Date(msg.timestamp) > new Date(convMap[convKey].updated_at)) {
-              convMap[convKey].updated_at = msg.timestamp;
-            }
-          }
-        });
-        const convArray = Object.values(convMap);
-        const convTx = db.transaction(["conversations"], "readwrite");
-        const convStore = convTx.objectStore("conversations");
-        convArray.forEach(conv => convStore.put(conv));
-        convTx.oncomplete = () => {
-          console.log("Conversations created from messages.");
-          resolve(convArray);
-        };
-        convTx.onerror = (event) => {
-          console.error("Error saving conversations:", event.target.error);
-          reject(event.target.error);
-        };
-      };
-
-      request.onerror = (event) => {
-        console.error("Error fetching messages:", event.target.error);
-        reject(event.target.error);
-      };
+    const senderIndex = store.index("sender_id");
+    const receiverIndex = store.index("receiver_id");
+    const senderPromise = new Promise((resolve, reject) => {
+      const reqSender = senderIndex.getAll(IDBKeyRange.only(currentUser.user_id));
+      reqSender.onsuccess = (event) => resolve(event.target.result);
+      reqSender.onerror = (event) => reject(event.target.error);
     });
+
+    const receiverPromise = new Promise((resolve, reject) => {
+      const reqReceiver = receiverIndex.getAll(IDBKeyRange.only(currentUser.user_id));
+      reqReceiver.onsuccess = (event) => resolve(event.target.result);
+      reqReceiver.onerror = (event) => reject(event.target.error);
+    });
+
+    Promise.all([senderPromise, receiverPromise])
+      .then((results) => {
+        const convs = [...results[0], ...results[1]];
+        const convMap = {};
+        convs.forEach(conv => {
+          convMap[conv.conversation_id] = conv;
+        });
+        const uniqueConvs = Object.values(convMap);
+        displayConversations(uniqueConvs);
+      })
+      .catch((error) => {
+        console.error("Error fetching conversations:", error);
+      });
   });
 }
 
@@ -121,7 +63,9 @@ function displayConversations(conversationList) {
 
   conversationList.forEach(conv => {
     const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-    const otherPartyId = conv.sender_id === currentUser.user_id ? conv.receiver_id : conv.sender_id;
+    const otherPartyId = (conv.sender_id === currentUser.user_id)
+      ? conv.receiver_id
+      : conv.sender_id;
 
     Promise.all([
       getVehicleDetails(conv.vehicle_id),
@@ -190,9 +134,8 @@ function getVehicleDetails(vehicleId) {
 function getUserDetails(userId) {
   return new Promise((resolve, reject) => {
     openDB(() => {
-      if (!db.objectStoreNames.contains("users")) {
+      if (!db.objectStoreNames.contains("users"))
         return reject("Users store not found.");
-      }
       const tx = db.transaction(["users"], "readonly");
       const store = tx.objectStore("users");
       const request = store.get(userId);

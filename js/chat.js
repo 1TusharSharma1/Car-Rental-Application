@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Extract conversationId from the URL
   const urlParams = new URLSearchParams(window.location.search);
   const conversationId = urlParams.get("conversationId");
 
@@ -11,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("Loading conversation with ID:", conversationId);
   loadConversation(conversationId);
 
-  // Handle sending new messages
   const messageForm = document.getElementById("messageForm");
   if (messageForm) {
     messageForm.addEventListener("submit", (e) => {
@@ -20,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // (Optional) If we want to log attachments
   const attachmentInput = document.getElementById("attachmentInput");
   if (attachmentInput) {
     attachmentInput.addEventListener("change", () => {
@@ -36,9 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/**
- * Load all messages for the given conversationId and display them.
- */
 function loadConversation(conversationId) {
   const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   if (!currentUser) {
@@ -48,7 +42,6 @@ function loadConversation(conversationId) {
   }
 
   openDB(() => {
-    // Ensure messages store and index exist
     if (!db.objectStoreNames.contains("messages")) {
       console.error("Messages store not found in IndexedDB. Check db.js schema.");
       return;
@@ -72,7 +65,6 @@ function loadConversation(conversationId) {
       const messages = event.target.result || [];
       console.log("Messages loaded:", messages);
 
-      // Sort by timestamp ascending
       messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       displayMessages(messages);
       updateChatHeader(conversationId);
@@ -84,9 +76,6 @@ function loadConversation(conversationId) {
   });
 }
 
-/**
- * Display the messages in the messagesContainer, applying .sent or .received classes.
- */
 function displayMessages(messages) {
   const container = document.getElementById("messagesContainer");
   if (!container) {
@@ -106,14 +95,11 @@ function displayMessages(messages) {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add("message");
 
-    // If this message's sender is the current user, it's "sent"; else "received"
     if (msg.sender_id === currentUser.user_id) {
       messageDiv.classList.add("sent");
     } else {
       messageDiv.classList.add("received");
     }
-
-    // Build message HTML
     let contentHTML = `<p>${msg.content}</p>`;
     if (msg.attachment_url) {
       contentHTML += `<img src="${msg.attachment_url}" alt="attachment" class="message-attachment">`;
@@ -124,13 +110,9 @@ function displayMessages(messages) {
     container.appendChild(messageDiv);
   });
 
-  // Scroll to bottom so latest messages are visible
   container.scrollTop = container.scrollHeight;
 }
 
-/**
- * Update chat header with vehicle name and the other user's name.
- */
 function updateChatHeader(conversationId) {
   openDB(() => {
     if (!db.objectStoreNames.contains("conversations")) {
@@ -149,7 +131,6 @@ function updateChatHeader(conversationId) {
       }
 
       const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-      // The other party is conv.sender_id if the current user is the receiver, etc.
       const otherPartyId = (conv.receiver_id === currentUser.user_id)
         ? conv.sender_id
         : conv.receiver_id;
@@ -173,10 +154,6 @@ function updateChatHeader(conversationId) {
     };
   });
 }
-
-/**
- * Retrieve vehicle details by ID.
- */
 function getVehicleDetails(vehicleId) {
   return new Promise((resolve, reject) => {
     openDB(() => {
@@ -189,9 +166,6 @@ function getVehicleDetails(vehicleId) {
   });
 }
 
-/**
- * Retrieve user details by user ID from the "users" store.
- */
 function getUserDetails(userId) {
   return new Promise((resolve, reject) => {
     openDB(() => {
@@ -207,9 +181,6 @@ function getUserDetails(userId) {
   });
 }
 
-/**
- * Send a new message: fill out sender_id, receiver_id, conversation_id, etc.
- */
 function sendMessage(conversationId) {
   const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   if (!currentUser) {
@@ -221,10 +192,9 @@ function sendMessage(conversationId) {
   const content = messageInput.value.trim();
   const attachmentInput = document.getElementById("attachmentInput");
   if (!content && (!attachmentInput || attachmentInput.files.length === 0)) {
-    return; // nothing to send
+    return; 
   }
 
-  // Prepare basic message data
   const messageData = {
     message_id: crypto.randomUUID(),
     conversation_id: conversationId,
@@ -233,13 +203,11 @@ function sendMessage(conversationId) {
     vehicle_id: null,
     attachment_url: "",
     status: "sent",
-    // NEW: store who is sending + who is receiving
     sender_id: currentUser.user_id,
-    receiver_id: null  // We'll fill in from the conversation record
+    receiver_id: null
   };
 
   openDB(() => {
-    // Grab conversation details to figure out which user is the 'other' side
     const tx = db.transaction(["conversations"], "readonly");
     const store = tx.objectStore("conversations");
     const req = store.get(conversationId);
@@ -251,7 +219,6 @@ function sendMessage(conversationId) {
         return;
       }
 
-      // If the current user is conv.sender_id, the other user is conv.receiver_id; else vice versa
       if (conv.sender_id === currentUser.user_id) {
         messageData.receiver_id = conv.receiver_id;
       } else {
@@ -260,12 +227,11 @@ function sendMessage(conversationId) {
 
       messageData.vehicle_id = conv.vehicle_id || null;
 
-      // If there's an attachment, read it. Otherwise, just add the message
       if (attachmentInput && attachmentInput.files.length > 0) {
         const file = attachmentInput.files[0];
         const reader = new FileReader();
         reader.onload = function(e) {
-          messageData.attachment_url = e.target.result; // base64-encoded image
+          messageData.attachment_url = e.target.result; 
           addMessage(messageData);
         };
         reader.onerror = function(e) {
@@ -284,23 +250,17 @@ function sendMessage(conversationId) {
   });
 }
 
-/**
- * Actually store the message in the "messages" store and reload the conversation.
- */
 function addMessage(messageData) {
   openDB(() => {
     const tx = db.transaction(["messages"], "readwrite");
     const store = tx.objectStore("messages");
     store.add(messageData).onsuccess = () => {
-      // Clear the message input field
       const msgInput = document.getElementById("messageInput");
       if (msgInput) msgInput.value = "";
 
-      // Clear any attachment input
       const attachmentInput = document.getElementById("attachmentInput");
       if (attachmentInput) attachmentInput.value = "";
 
-      // Reload conversation messages
       loadConversation(messageData.conversation_id);
     };
   });
