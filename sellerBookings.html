@@ -5,12 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seller Bookings & Analytics | RentO</title>
   <link rel="stylesheet" href="styles/sellerBookings.css" />
-  <!-- Load database and page scripts (make sure db.js loads first) -->
   <script src="js/db.js" defer></script>
   <script src="js/sellerBookings.js" defer></script>
 </head>
 <body>
-  <!-- Header with consistent navbar -->
   <header class="header">
     <div class="container">
       <div class="header__content">
@@ -19,11 +17,15 @@
         </a>
         <nav class="nav">
           <ul class="nav__list">
-            <li><a href="sellerDashboard.html" class="nav__link">Dashboard</a></li>
-            <li><a href="sellerBookings.html" class="nav__link">Bookings</a></li>
-            <li><a href="#" class="nav__link">Support</a></li>
+              <li><a href="./sellerDashboard.html" class="nav__link">Dashboard</a></li>
+              <li><a href="./sellerListings.html" class="nav__link">My Listings</a></li>
+              <li><a href="./sellerBookings.html" class="nav__link">Bookings</a></li>
+              <li><a href="./conversations.html" class="nav__link">Messages</a></li>
+              <li><a href="./sellerAnalytics.html" class="nav__link">Reports</a></li>
+
+
           </ul>
-        </nav>
+      </nav>
         <div class="header__profile">
           <a href="userDashboard.html" class="profile__link">
             <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="User Profile" class="profile__icon">
@@ -36,7 +38,7 @@
 
   <main class="dashboard">
     <div class="container">
-      <h1>Seller Bookings & Analytics</h1>
+      <h1>Seller Bookings</h1>
       <section class="analytics">
         <div class="analytics-card" id="totalVehicles">Loading vehicles...</div>
         <div class="analytics-card" id="totalBookings">Loading bookings...</div>

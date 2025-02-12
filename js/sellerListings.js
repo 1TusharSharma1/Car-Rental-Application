@@ -1,29 +1,79 @@
 document.addEventListener("DOMContentLoaded", () => {
+  let sellerId;
+  const urlParams = new URLSearchParams(window.location.search);
+  sellerId = urlParams.get("sellerId");
+
+  let seenByAdmin = false;
+  if (sellerId) {
+    seenByAdmin = true;
+  }
+
+  const loggedInSeller = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  let showAddCar = !seenByAdmin;
+  if (!sellerId) {
+    if (
+      !loggedInSeller ||
+      !Array.isArray(loggedInSeller.user_role) ||
+      !loggedInSeller.user_role.includes("seller")
+    ) {
+      window.location.href = "login.html";
+      return;
+    }
+    sellerId = loggedInSeller.user_id;
+  }
+  window.sellerId = sellerId;
+
+  if (seenByAdmin) {
+    const nav = document.querySelector(".nav");
+    if (nav) nav.style.display = "none";
+    const navToggle = document.querySelector(".nav-toggle");
+    if (navToggle) navToggle.style.display = "none";
+
+    const headerProfile = document.querySelector(".header__profile");
+    if (headerProfile) {
+      headerProfile.innerHTML = `<button id="logoutBtn" class="btn btn--danger">Back</button>`;
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", () => (window.location.href = "login.html"));
+    }
+  }
+
+
+  let currentAvailabilityFilter = document.getElementById("availabilityCheckbox").checked
+    ? "Available"
+    : "Unavailable";
+  document.getElementById("availabilityCheckbox").addEventListener("change", (e) => {
+    currentAvailabilityFilter = e.target.checked ? "Available" : "Unavailable";
+    loadSellerListings();
+  });
+
+  if (!showAddCar) {
+    const addCarBtn = document.getElementById("addCarBtn");
+    if (addCarBtn) addCarBtn.style.display = "none";
+  }
+
   const addCarBtn = document.getElementById("addCarBtn");
   const addCarModal = document.getElementById("addCarModal");
   const addCarForm = document.getElementById("addCarForm");
   const closeBtn = document.querySelector(".close-btn");
-
   const superCategorySelect = document.getElementById("superCategory");
   const categorySelect = document.getElementById("category");
+  const categoryRow = document.getElementById("categoryRow");
   const otherCategoryWrapper = document.getElementById("otherCategoryWrapper");
   const otherCategoryInput = document.getElementById("otherCategoryInput");
-
   const otherSuperCategoryWrapper = document.getElementById("otherSuperCategoryWrapper");
   const otherSuperCategoryInput = document.getElementById("otherSuperCategoryInput");
 
-  addCarBtn.addEventListener("click", () => {
-    addCarModal.style.display = "flex";
-    loadSuperCategories();
-  });
-
-  closeBtn.addEventListener("click", closeModal);
-  window.addEventListener("click", (event) => {
-    if (event.target === addCarModal) {
-      closeModal();
-    }
-  });
-
+  if (showAddCar) {
+    addCarBtn.addEventListener("click", () => {
+      addCarModal.style.display = "flex";
+      loadSuperCategories();
+    });
+    closeBtn.addEventListener("click", closeModal);
+  }
+  if (categoryRow) {
+    categoryRow.style.display = "none";
+  }
   loadSellerListings();
 
   function closeModal() {
@@ -31,22 +81,21 @@ document.addEventListener("DOMContentLoaded", () => {
     addCarForm.reset();
     otherSuperCategoryWrapper.style.display = "none";
     otherCategoryWrapper.style.display = "none";
+    if (categoryRow) {
+      categoryRow.style.display = "none";
+    }
   }
 
   function loadSuperCategories() {
-    if (!superCategorySelect) {
-      console.error("superCategorySelect not found in DOM.");
-      return;
-    }
+    if (!superCategorySelect) return;
     openDB(() => {
-      const transaction = db.transaction(["superCategories"], "readonly");
-      const store = transaction.objectStore("superCategories");
-      const request = store.getAll();
-      request.onsuccess = (event) => {
-        const superCategories = event.target.result;
+      const tx = db.transaction(["superCategories"], "readonly");
+      const store = tx.objectStore("superCategories");
+      store.getAll().onsuccess = (event) => {
+        const superCats = event.target.result;
         superCategorySelect.innerHTML = `<option value="">Select Super Category</option>`;
-        superCategories.forEach((category) => {
-          superCategorySelect.innerHTML += `<option value="${category.supercategory_id}">${category.superCategory_name}</option>`;
+        superCats.forEach((sc) => {
+          superCategorySelect.innerHTML += `<option value="${sc.supercategory_id}">${sc.superCategory_name}</option>`;
         });
         superCategorySelect.innerHTML += `<option value="Other">Other</option>`;
       };
@@ -54,6 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   superCategorySelect.addEventListener("change", () => {
+    if (superCategorySelect.value) {
+      if (categoryRow) categoryRow.style.display = "block";
+    } else {
+      if (categoryRow) categoryRow.style.display = "none";
+    }
     categorySelect.innerHTML = `<option value="">Select Category</option>`;
     if (superCategorySelect.value === "Other") {
       otherSuperCategoryWrapper.style.display = "block";
@@ -66,20 +120,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function loadCategories(supercategory_id) {
-    if (!categorySelect) {
-      console.error("categorySelect not found in DOM.");
-      return;
-    }
+    if (!categorySelect) return;
     openDB(() => {
-      const transaction = db.transaction(["categories"], "readonly");
-      const store = transaction.objectStore("categories");
+      const tx = db.transaction(["categories"], "readonly");
+      const store = tx.objectStore("categories");
       const index = store.index("supercategory_id");
-      const request = index.getAll(supercategory_id);
-      request.onsuccess = (event) => {
-        const categories = event.target.result;
+      index.getAll(supercategory_id).onsuccess = (event) => {
+        const cats = event.target.result;
         categorySelect.innerHTML = `<option value="">Select Category</option>`;
-        categories.forEach((category) => {
-          categorySelect.innerHTML += `<option value="${category.category_id}">${category.category_name}</option>`;
+        cats.forEach((cat) => {
+          categorySelect.innerHTML += `<option value="${cat.category_id}">${cat.category_name}</option>`;
         });
         categorySelect.innerHTML += `<option value="Other">Other</option>`;
       };
@@ -94,176 +144,223 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  document.getElementById("addFeatureBtn").addEventListener("click", () => {
+    const featureInput = document.getElementById("featureInput");
+    const feature = featureInput.value.trim();
+    if (!feature) return;
+    const featuresList = document.getElementById("featuresList");
+    const featureItem = document.createElement("div");
+    featureItem.className = "feature-item";
+    featureItem.innerText = feature;
+    featuresList.appendChild(featureItem);
+    const hiddenFeatures = document.getElementById("features");
+    hiddenFeatures.value = hiddenFeatures.value ? hiddenFeatures.value + "," + feature : feature;
+    featureInput.value = "";
+  });
+
   addCarForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    let newCategory = otherCategoryInput.value.trim();
+    const newCategory = otherCategoryInput.value.trim();
     let supercategoryId = superCategorySelect.value;
     let categoryId = categorySelect.value;
-    let vehicleOwner = JSON.parse(sessionStorage.getItem("loggedInUser"));
-
+    const vehicleOwner = JSON.parse(sessionStorage.getItem("loggedInUser"));
+    if (!vehicleOwner) {
+      alert("Please log in first.");
+      return;
+    }
     if (supercategoryId === "Other") {
       supercategoryId = await saveNewSuperCategory(otherSuperCategoryInput.value.trim());
     }
     if (categoryId === "Other" && newCategory.length > 0) {
       categoryId = await saveNewCategory(newCategory, supercategoryId);
     }
-
     saveImages().then((imageURLs) => {
-      saveVehicle({
+      const vehicleData = {
         vehicle_id: crypto.randomUUID(),
         vehicle_owner_id: vehicleOwner.user_id,
         vehicle_owner_name: vehicleOwner.username,
         vehicle_model: document.getElementById("vehicleModel").value.trim(),
+        vehicle_number: document.getElementById("vehicleNumber").value.trim(),
         minimum_rental_price: Number(document.getElementById("minPrice").value),
-        availability: document.getElementById("availability").value,
+        availability: "Available",
         location: document.getElementById("location").value.trim(),
         features: document.getElementById("features").value.trim(),
         images_URL: imageURLs,
         uploaded_at: new Date().toISOString(),
         category_id: categoryId,
         supercategory_id: supercategoryId,
-      });
-      alert("✅ Vehicle added successfully!");
+      };
+      saveVehicle(vehicleData);
       closeModal();
+      loadSellerListings();
+      window.location.reload();
     });
   });
 
-  function saveNewSuperCategory(superCategoryName) {
+
+  function saveNewSuperCategory(name) {
     return new Promise((resolve) => {
       const supercategoryId = crypto.randomUUID();
       openDB(() => {
-        const transaction = db.transaction(["superCategories"], "readwrite");
-        const store = transaction.objectStore("superCategories");
-        const request = store.add({
-          supercategory_id: supercategoryId,
-          superCategory_name: superCategoryName,
-        });
-        request.onsuccess = () => resolve(supercategoryId);
+        const tx = db.transaction(["superCategories"], "readwrite");
+        const store = tx.objectStore("superCategories");
+        store.add({ supercategory_id: supercategoryId, superCategory_name: name }).onsuccess = () => {
+          resolve(supercategoryId);
+        };
       });
     });
   }
 
-  function saveNewCategory(categoryName, supercategory_id) {
+
+  function saveNewCategory(catName, superCatId) {
     return new Promise((resolve) => {
       const categoryId = crypto.randomUUID();
       openDB(() => {
-        const transaction = db.transaction(["categories"], "readwrite");
-        const store = transaction.objectStore("categories");
-        const newCategory = {
-          category_id: categoryId,
-          category_name: categoryName,
-          supercategory_id: supercategory_id,
-        };
-        const request = store.add(newCategory);
-        request.onsuccess = () => {
-          alert(`✅ New category "${categoryName}" added successfully!`);
+        const tx = db.transaction(["categories"], "readwrite");
+        const store = tx.objectStore("categories");
+        store.add({ category_id: categoryId, category_name: catName, supercategory_id: superCatId }).onsuccess = () => {
+          alert(`New category "${catName}" added successfully!`);
           resolve(categoryId);
         };
       });
     });
   }
 
+
   function saveVehicle(vehicleData) {
     openDB(() => {
-      const transaction = db.transaction(["vehicles"], "readwrite");
-      const store = transaction.objectStore("vehicles");
+      const tx = db.transaction(["vehicles"], "readwrite");
+      const store = tx.objectStore("vehicles");
       store.add(vehicleData);
     });
   }
 
+
   function saveImages() {
     const files = document.getElementById("imageUpload").files;
     let imageArray = [];
-    let fileReaders = [];
-    return new Promise((resolve) => {
-      for (let file of files) {
-        const reader = new FileReader();
-        fileReaders.push(
-          new Promise((res) => {
-            reader.readAsDataURL(file);
-            reader.onload = function (event) {
-              imageArray.push(event.target.result);
-              res();
-            };
-          })
-        );
-      }
-      Promise.all(fileReaders).then(() => {
-        resolve(JSON.stringify(imageArray));
-      });
-    });
+    if (!files || files.length === 0) {
+      return Promise.resolve(JSON.stringify([]));
+    }
+    let promises = [];
+    for (let i = 0; i < files.length; i++) {
+      promises.push(
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            imageArray.push(event.target.result);
+            resolve();
+          };
+          reader.onerror = function (err) {
+            reject(err);
+          };
+          reader.readAsDataURL(files[i]);
+        })
+      );
+    }
+    return Promise.all(promises).then(() => JSON.stringify(imageArray));
   }
 
+
   function loadSellerListings() {
-    const seller = JSON.parse(sessionStorage.getItem("loggedInUser"));
-    if (!seller) {
-      alert(" Please log in first.");
-      window.location.href = "login.html";
-      return;
-    }
     openDB(() => {
-      const transaction = db.transaction(["vehicles"], "readonly");
-      const store = transaction.objectStore("vehicles");
+      const tx = db.transaction(["vehicles"], "readonly");
+      const store = tx.objectStore("vehicles");
       const index = store.index("vehicle_owner_id");
-      const request = index.getAll(seller.user_id);
-      request.onsuccess = (event) => {
+      index.getAll(window.sellerId).onsuccess = (event) => {
         const listings = event.target.result;
         displayListings(listings);
       };
     });
   }
 
+
   function displayListings(listings) {
     const carContainer = document.getElementById("carContainer");
     carContainer.innerHTML = "";
-    if (listings.length === 0) {
-      carContainer.innerHTML = "<p>No listings found. Add a new car to start renting!</p>";
+
+    let filteredListings = listings.filter(
+      (vehicle) => vehicle.availability === currentAvailabilityFilter
+    );
+    if (!filteredListings || filteredListings.length === 0) {
+      carContainer.innerHTML = "<p>No listings found!</p>";
       return;
     }
-    listings.forEach((vehicle) => {
+    filteredListings.forEach((vehicle) => {
       const carCard = document.createElement("div");
       carCard.classList.add("car-card");
-      let images = JSON.parse(vehicle.images_URL);
-      let imageSrc = (images && images.length > 0)
-        ? images[0]
-        : "https://via.placeholder.com/250";
+      let images = [];
+      try {
+        images = JSON.parse(vehicle.images_URL);
+      } catch (err) {
+        images = [];
+      }
+      let imageSrc = images && images.length > 0 ? images[0] : "https://via.placeholder.com/250";
+
+      let buttonHTML = "";
+      if (vehicle.availability === "Available") {
+        buttonHTML = `<button class="btn " onclick="deleteListing('${vehicle.vehicle_id}')">De-list</button>`;
+      } else {
+        buttonHTML = `<button class="btn " onclick="listAgain('${vehicle.vehicle_id}')">List Again</button>`;
+      }
       carCard.innerHTML = `
         <img src="${imageSrc}" alt="Car Image">
         <h3>${vehicle.vehicle_model}</h3>
         <p>Price: Rs ${vehicle.minimum_rental_price} /day</p>
         <p>Location: ${vehicle.location}</p>
         <p>Availability: <strong>${vehicle.availability}</strong></p>
-        <button class="btn btn--danger" onclick="deleteListing('${vehicle.vehicle_id}')">Delete</button>
+        ${buttonHTML}
       `;
       carContainer.appendChild(carCard);
     });
   }
 
+
   function deleteListing(vehicleId) {
-    if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) {
-      return;
-    }
+    if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) return;
     openDB(() => {
-      const transaction = db.transaction(["vehicles"], "readwrite");
-      const store = transaction.objectStore("vehicles");
-      store.delete(vehicleId);
-      transaction.oncomplete = () => {
+      const tx = db.transaction(["vehicles"], "readwrite");
+      const store = tx.objectStore("vehicles");
+      store.get(vehicleId).onsuccess = (event) => {
+        const vehicle = event.target.result;
+        if (vehicle) {
+          vehicle.availability = "Unavailable";
+          store.put(vehicle);
+        }
+      };
+      tx.oncomplete = () => {
         alert("Listing deleted successfully!");
         loadSellerListings();
       };
-      transaction.onerror = (event) => {
-        console.error("Error deleting listing:", event.target.error);
+      tx.onerror = (err) => {
+        console.error("Error deleting listing:", err);
         alert("Could not delete listing. Try again.");
       };
     });
   }
   window.deleteListing = deleteListing;
 
-  if (db && !db.objectStoreNames.contains("vehicles")) {
-    db.createObjectStore("vehicles", { keyPath: "vehicle_id" }).createIndex(
-      "vehicle_owner_id",
-      "vehicle_owner_id",
-      { unique: false }
-    );
+
+  function listAgain(vehicleId) {
+    openDB(() => {
+      const tx = db.transaction(["vehicles"], "readwrite");
+      const store = tx.objectStore("vehicles");
+      store.get(vehicleId).onsuccess = (event) => {
+        const vehicle = event.target.result;
+        if (vehicle) {
+          vehicle.availability = "Available";
+          store.put(vehicle);
+        }
+      };
+      tx.oncomplete = () => {
+        alert("Listing has been re-listed successfully!");
+        loadSellerListings();
+      };
+      tx.onerror = (err) => {
+        console.error("Error listing again:", err);
+        alert("Could not list the car again. Try again.");
+      };
+    });
   }
+  window.listAgain = listAgain;
 });

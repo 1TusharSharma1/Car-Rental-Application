@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Dashboard | RentO</title>
   <link rel="stylesheet" href="styles/dashboard.css">
-  <script src="js/dashboard.js" ></script>
-  <script src="js/db.js" ></script>
+  <script src="js/db.js"></script>
+  <script src="js/dashboard.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -18,9 +18,7 @@
         </a>
         <nav class="nav">
           <ul class="nav__list">
-            <li><a href="#" class="nav__link">Browse Cars</a></li>
-            <li><a href="buyerBookings.html" class="nav__link">Your Bookings</a></li>
-            <li><a href="#" class="nav__link">Deals</a></li>
+            <li><a href="buyerHomePage.html" class="nav__link">Browse Cars</a></li>
             <li><a href="./conversations.html" class="nav__link">Messages</a></li>
           </ul>
         </nav>
@@ -37,6 +35,7 @@
   <div class="dashboard-container">
     <h1 class="dashboard-title">Welcome to Your Dashboard</h1>
     <div id="userDetails" class="dashboard-details">
+      <div id="dashboardContent"></div>
     </div>
     <button onclick="logout()" class="dashboard-logout">Logout</button>
   </div>

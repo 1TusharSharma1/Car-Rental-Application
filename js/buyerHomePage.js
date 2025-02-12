@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+  
+  const user = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if (!user) {
+    window.location.href = "login.html";
+  }
+
     loadSuperCategories();
     loadLocations();
     loadAvailableCars(); 

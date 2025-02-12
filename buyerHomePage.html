@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="styles/buyerHomePage.css">
   <script src="js/db.js"></script>
   <script src="js/buyerHomePage.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -19,9 +20,8 @@
         </a>
         <nav class="nav">
           <ul class="nav__list">
-            <li><a href="#" class="nav__link">Browse Cars</a></li>
+            <li><a href="buyerHomePage.html" class="nav__link">Browse Cars</a></li>
             <li><a href="buyerBookings.html" class="nav__link">Your Bookings</a></li>
-            <li><a href="#" class="nav__link">Deals</a></li>
             <li><a href="./conversations.html" class="nav__link">Messages</a></li>
           </ul>
         </nav>
@@ -63,7 +63,7 @@
             <select id="filterLocation" class="form-select">
               <option value="">All Locations</option>
             </select>
-            <!-- <button type="button" id="useMyLocation" class="btn btn--secondary">Use My Location</button> -->
+
           </div>
           <div class="form-group price-range">
             <label class="form-label">Price Range (Rs/day)</label>
@@ -79,6 +79,7 @@
               <option value="">All</option>
               <option value="Available">Available</option>
               <option value="Unavailable">Unavailable</option>
+
             </select>
           </div>
           <div class="form-group">
@@ -103,21 +104,6 @@
       </div>
     </section>
 
-    <section class="special-offers">
-      <div class="container">
-        <h2 class="section-title">Special Offers</h2>
-        <div class="offers-grid">
-          <div class="offer-card">
-            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3" alt="Weekend Getaway" class="offer-card__image">
-            <div class="offer-card__content">
-              <h3 class="offer-card__title">Weekend Getaway</h3>
-              <p class="offer-card__description">Save up to 20% on weekend rentals</p>
-              <a href="#" class="btn btn--primary">Learn More</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="footer">
