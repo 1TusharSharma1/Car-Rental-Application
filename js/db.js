@@ -55,14 +55,7 @@ function openDB(callback) {
       bookingsStore.createIndex("bid_id", "bid_id", { unique: false });
     }
 
-    // 7) REVIEWS
-    if (!db.objectStoreNames.contains("reviews")) {
-      const reviewsStore = db.createObjectStore("reviews", { keyPath: "review_id" });
-      reviewsStore.createIndex("user_id", "user_id", { unique: false });
-      reviewsStore.createIndex("vehicle_id", "vehicle_id", { unique: false });
-    }
-
-    // 8) CONVERSATIONS (new messaging store)
+    // 7) CONVERSATIONS (new messaging store)
     if (!db.objectStoreNames.contains("conversations")) {
       const convStore = db.createObjectStore("conversations", { keyPath: "conversation_id" });
       convStore.createIndex("sender_id", "sender_id", { unique: false });
@@ -70,7 +63,7 @@ function openDB(callback) {
       convStore.createIndex("vehicle_id", "vehicle_id", { unique: false });
     }
 
-    // 9) MESSAGES (new messaging store)
+    // 8) MESSAGES (new messaging store)
     if (!db.objectStoreNames.contains("messages")) {
       const messagesStore = db.createObjectStore("messages", { keyPath: "message_id" });
       messagesStore.createIndex("conversation_id", "conversation_id", { unique: false });
@@ -78,7 +71,7 @@ function openDB(callback) {
       messagesStore.createIndex("vehicle_id", "vehicle_id", { unique: false });
     }
 
-    // 10) BIDDING
+    // 9) BIDDING
     if (!db.objectStoreNames.contains("bidding")) {
       const biddingStore = db.createObjectStore("bidding", { keyPath: "bid_id" });
       biddingStore.createIndex("vehicle_id", "vehicle_id", { unique: false });

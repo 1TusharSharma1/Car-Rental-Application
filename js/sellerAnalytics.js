@@ -213,8 +213,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (b.booking_start_date && b.booking_end_date && b.booking_amount) {
           const start = new Date(b.booking_start_date);
           const end = new Date(b.booking_end_date);
-          const durationDays = (end - start) / (1000 * 60 * 60 * 24);
-          totalRevenue += durationDays * Number(b.booking_amount);
+          const durationDays = (end - start ) / (1000 * 60 * 60 * 24);
+          totalRevenue += (durationDays+1) * Number(b.booking_amount);
         }
       });
       document.getElementById("totalRevenue").innerText = "Rs " + totalRevenue.toFixed(2);
@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const bookings = (e.target.result || []).filter(b => sellerVehicleIds.includes(b.vehicle_id));
       const durations = bookings.map(b => {
         if (b.booking_start_date && b.booking_end_date) {
-          return (new Date(b.booking_end_date) - new Date(b.booking_start_date)) / (1000 * 60 * 60 * 24);
+          return (((new Date(b.booking_end_date) - new Date(b.booking_start_date)))/ (1000 * 60 * 60 * 24))+1;
         }
         return 0;
       });
@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!topVehicleId) return;
       getVehicleDetails(topVehicleId).then(vehicle => {
         const vehicleModel = vehicle ? vehicle.vehicle_model : topVehicleId;
-        document.getElementById("mostQueried").innerText = `${vehicleModel} (${sorted[0][1]} queries)`;
+        document.getElementById("mostQueried").innerText = `${vehicleModel} (${sorted[0][1]}  queries)`;
       });
     };
   }

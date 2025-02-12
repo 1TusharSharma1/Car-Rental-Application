@@ -63,9 +63,7 @@ function displayConversations(conversationList) {
 
   conversationList.forEach(conv => {
     const currentUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-    const otherPartyId = (conv.sender_id === currentUser.user_id)
-      ? conv.receiver_id
-      : conv.sender_id;
+    const otherPartyId = (conv.sender_id === currentUser.user_id)? conv.receiver_id : conv.sender_id;
 
     Promise.all([
       getVehicleDetails(conv.vehicle_id),

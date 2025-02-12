@@ -1,4 +1,3 @@
-
 let allUsers = [];
 let allListings = [];
 let currentUserPage = 1;
@@ -59,7 +58,7 @@ function displayUsersPage(page) {
   const tbody = document.querySelector("#usersTable tbody");
   tbody.innerHTML = "";
   if (!allUsers || allUsers.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='7'>No users found.</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='5'>No users found.</td></tr>";
     return;
   }
   const startIndex = (page - 1) * itemsPerPage;
@@ -74,17 +73,12 @@ function displayUsersPage(page) {
     ) {
       viewListingsBtn = `<button class="btn btn--view" onclick="viewListings('${user.user_id}')">View Listings</button>`;
     }
+
     tr.innerHTML = `
-      <td>${user.user_id}</td>
       <td>${user.username}</td>
       <td>${user.email}</td>
-      <td>${
-        Array.isArray(user.user_role)
-          ? user.user_role.join(", ")
-          : user.user_role
-      }</td>
+      <td>${Array.isArray(user.user_role) ? user.user_role.join(", ") : user.user_role}</td>
       <td>${new Date(user.created_at).toLocaleDateString()}</td>
-      <td><button class="btn btn--danger" onclick="deleteUser('${user.user_id}')">Delete</button></td>
       <td>${viewListingsBtn}</td>
     `;
     tbody.appendChild(tr);
@@ -134,7 +128,7 @@ function displayListingsPage(page) {
   const tbody = document.querySelector("#listingsTable tbody");
   tbody.innerHTML = "";
   if (!allListings || allListings.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='8'>No listings found.</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='7'>No listings found.</td></tr>";
     return;
   }
   const startIndex = (page - 1) * itemsPerPage;
@@ -142,15 +136,22 @@ function displayListingsPage(page) {
   const paginatedListings = allListings.slice(startIndex, endIndex);
   paginatedListings.forEach((vehicle) => {
     const tr = document.createElement("tr");
+
+    let actionBtn = "";
+    if (vehicle.availability.toLowerCase() === "unavailable") {
+      tr.classList.add("delisted"); 
+      actionBtn = `<button class="btn btn--primary" onclick="listListing('${vehicle.vehicle_id}')">List Again</button>`;
+    } else {
+      actionBtn = `<button class="btn btn--danger" onclick="deleteListing('${vehicle.vehicle_id}')">De-List</button>`;
+    }
+    
     tr.innerHTML = `
-      <td>${vehicle.vehicle_id}</td>
       <td>${vehicle.vehicle_model}</td>
       <td>${vehicle.vehicle_owner_name}</td>
       <td>Rs ${vehicle.minimum_rental_price}</td>
       <td>${vehicle.location}</td>
-      <td>${vehicle.availability}</td>
       <td>${new Date(vehicle.uploaded_at).toLocaleDateString()}</td>
-      <td><button class="btn btn--danger" onclick="deleteListing('${vehicle.vehicle_id}')">Delete</button></td>
+      <td>${actionBtn}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -178,37 +179,39 @@ function renderListingPagination() {
   }
 }
 
-function deleteUser(userId) {
-  if (
-    !confirm(
-      "Are you sure you want to delete this user? This action cannot be undone."
-    )
-  )
-    return;
+function deleteListing(vehicleId) {
+  if (!confirm("Are you sure you want to de-list this listing?")) return;
   openDB(() => {
-    const tx = db.transaction(["users"], "readwrite");
-    const store = tx.objectStore("users");
-    store.delete(userId);
+    const tx = db.transaction(["vehicles"], "readwrite");
+    const store = tx.objectStore("vehicles");
+    store.get(vehicleId).onsuccess = (event) => {
+      const vehicle = event.target.result;
+      if (vehicle) {
+        vehicle.availability = "Unavailable";
+        store.put(vehicle);
+      }
+    };
     tx.oncomplete = () => {
-      alert("User deleted successfully!");
-      loadUsers();
+      alert("Listing de-listed successfully!");
+      loadListings();
     };
   });
 }
 
-function deleteListing(vehicleId) {
-  if (
-    !confirm(
-      "Are you sure you want to delete this listing? This action cannot be undone."
-    )
-  )
-    return;
+function listListing(vehicleId) {
+  if (!confirm("Are you sure you want to list this vehicle again?")) return;
   openDB(() => {
     const tx = db.transaction(["vehicles"], "readwrite");
     const store = tx.objectStore("vehicles");
-    store.delete(vehicleId);
+    store.get(vehicleId).onsuccess = (event) => {
+      const vehicle = event.target.result;
+      if (vehicle) {
+        vehicle.availability = "Available"; 
+        store.put(vehicle);
+      }
+    };
     tx.oncomplete = () => {
-      alert("Listing deleted successfully!");
+      alert("Listing re-listed successfully!");
       loadListings();
     };
   });

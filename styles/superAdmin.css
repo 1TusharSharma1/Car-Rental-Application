@@ -35,7 +35,7 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Header Styles */
+
 .header {
   background-color: var(--color-background);
   box-shadow: var(--shadow);
@@ -82,11 +82,14 @@ body {
 .nav__link.active {
   color: var(--color-primary);
 }
-
+.delisted{
+  color: red;
+}
 .header__profile {
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  cursor: pointer;
 }
 
 .profile__link {
@@ -112,7 +115,7 @@ body {
   border-color: var(--color-primary);
 }
 
-/* Dashboard & Analytics Styles */
+
 .dashboard-title {
   margin-bottom: 20px;
   color: var(--color-text);
@@ -137,7 +140,7 @@ body {
   text-align: center;
 }
 
-/* Table Styles */
+
 .users,
 .listings {
   margin-top: 40px;
@@ -177,7 +180,7 @@ tbody tr:hover {
   background-color: #f0f0f0;
 }
 
-/* Logout Button */
+
 .dashboard-logout {
   margin-top: 20px;
   padding: 10px 15px;
@@ -193,7 +196,7 @@ tbody tr:hover {
   background: #b52a37;
 }
 
-/* Responsive Adjustments */
+
 @media (max-width: 600px) {
   .container {
     margin: 10px;

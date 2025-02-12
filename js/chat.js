@@ -6,8 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Invalid conversation parameters.");
     return;
   }
-
-  console.log("Loading conversation with ID:", conversationId);
   loadConversation(conversationId);
 
   const messageForm = document.getElementById("messageForm");

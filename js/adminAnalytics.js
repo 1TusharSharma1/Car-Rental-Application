@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "login.html";
       return;
     }
-  
     loadAnalyticsData();
     loadRecentBookings();
     drawVehiclesOverTimeChart();
@@ -18,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     displayBidAcceptTime();
     displayBidRejectionRate();
     loadTopSellers();
+    drawRevenuePerDayChart();
   });
   
   function loadAnalyticsData() {
@@ -45,7 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ]).then(([vehicle, renter, seller]) => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${booking.booking_id}</td>
             <td>${vehicle ? vehicle.vehicle_model : booking.vehicle_id}</td>
             <td>${renter ? renter.username : booking.renter_id}</td>
             <td>${seller ? seller.username : booking.seller_id}</td>
@@ -244,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     analyticsUtils.getCachedData("bookings").then((bookings) => {
       const durations = bookings.map(b => {
         if (b.booking_start_date && b.booking_end_date) {
-          return (new Date(b.booking_end_date) - new Date(b.booking_start_date)) / (1000 * 60 * 60 * 24);
+          return ((new Date(b.booking_end_date) - new Date(b.booking_start_date)) / (1000 * 60 * 60 * 24)) + 1;
         }
         return 0;
       });
@@ -293,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
     analyticsUtils.getCachedData("bidding").then((bids) => {
       const rejected = bids.filter(b => b.bid_status === "Rejected").length;
       const rate = bids.length > 0 ? (rejected / bids.length) * 100 : 0;
-      document.getElementById("bidRejectionRate").innerText = Math.round(rate); 
+      document.getElementById("bidRejectionRate").innerText = Math.round(rate);
     });
   }
   
@@ -321,5 +320,55 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
     });
+  }
+  
+  function drawRevenuePerDayChart() {
+    Promise.all([
+      analyticsUtils.getCachedData("bookings"),
+      analyticsUtils.getCachedData("vehicles")
+    ]).then(([bookings, vehicles]) => {
+      const vehicleMap = {};
+      vehicles.forEach(v => {
+        vehicleMap[v.vehicle_id] = v;
+      });
+      const revenueByDate = {};
+      bookings.forEach(booking => {
+        if (booking.booking_start_date && booking.booking_end_date && booking.vehicle_id) {
+          const startDate = new Date(booking.booking_start_date);
+          const endDate = new Date(booking.booking_end_date);
+          const durationDays = ((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+          const vehicle = vehicleMap[booking.vehicle_id];
+          const revenue = vehicle ? vehicle.minimum_rental_price * durationDays : 0;
+          const key = `${startDate.getFullYear()}-${("0" + (startDate.getMonth() + 1)).slice(-2)}-${("0" + startDate.getDate()).slice(-2)}`;
+          revenueByDate[key] = (revenueByDate[key] || 0) + revenue;
+        }
+      });
+      const labels = Object.keys(revenueByDate).sort();
+      const data = labels.map(label => revenueByDate[label]);
+      const ctx = document.getElementById("revenuePerDayChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Revenue per Day (Rs)",
+            data: data,
+            borderColor: "#8e44ad",
+            backgroundColor: "rgba(142, 68, 173, 0.2)",
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    });
+  }
+  
+  function logout() {
+    sessionStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
   }
   

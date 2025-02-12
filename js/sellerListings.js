@@ -1,23 +1,57 @@
 document.addEventListener("DOMContentLoaded", () => {
+  let sellerId;
   const urlParams = new URLSearchParams(window.location.search);
-  let sellerId = urlParams.get("sellerId");
+  sellerId = urlParams.get("sellerId");
+
+  let seenByAdmin = false;
+  if (sellerId) {
+    seenByAdmin = true;
+  }
+
   const loggedInSeller = JSON.parse(sessionStorage.getItem("loggedInUser"));
-  let showAddCar = true;
+  let showAddCar = !seenByAdmin;
   if (!sellerId) {
-    if (!loggedInSeller || !Array.isArray(loggedInSeller.user_role) || !loggedInSeller.user_role.includes("seller")) {
+    if (
+      !loggedInSeller ||
+      !Array.isArray(loggedInSeller.user_role) ||
+      !loggedInSeller.user_role.includes("seller")
+    ) {
       window.location.href = "login.html";
       return;
     }
     sellerId = loggedInSeller.user_id;
-  } else {
-    showAddCar = false;
   }
   window.sellerId = sellerId;
+
+  if (seenByAdmin) {
+    const nav = document.querySelector(".nav");
+    if (nav) nav.style.display = "none";
+    const navToggle = document.querySelector(".nav-toggle");
+    if (navToggle) navToggle.style.display = "none";
+
+    const headerProfile = document.querySelector(".header__profile");
+    if (headerProfile) {
+      headerProfile.innerHTML = `<button id="logoutBtn" class="btn btn--danger">Back</button>`;
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", () => (window.location.href = "login.html"));
+    }
+  }
+
+
+  let currentAvailabilityFilter = document.getElementById("availabilityCheckbox").checked
+    ? "Available"
+    : "Unavailable";
+  document.getElementById("availabilityCheckbox").addEventListener("change", (e) => {
+    currentAvailabilityFilter = e.target.checked ? "Available" : "Unavailable";
+    loadSellerListings();
+  });
+
   if (!showAddCar) {
     const addCarBtn = document.getElementById("addCarBtn");
     if (addCarBtn) addCarBtn.style.display = "none";
   }
-  
+
   const addCarBtn = document.getElementById("addCarBtn");
   const addCarModal = document.getElementById("addCarModal");
   const addCarForm = document.getElementById("addCarForm");
@@ -37,8 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     closeBtn.addEventListener("click", closeModal);
   }
-  
-  if (categoryRow) { categoryRow.style.display = "none"; }
+  if (categoryRow) {
+    categoryRow.style.display = "none";
+  }
   loadSellerListings();
 
   function closeModal() {
@@ -46,7 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
     addCarForm.reset();
     otherSuperCategoryWrapper.style.display = "none";
     otherCategoryWrapper.style.display = "none";
-    if (categoryRow) { categoryRow.style.display = "none"; }
+    if (categoryRow) {
+      categoryRow.style.display = "none";
+    }
   }
 
   function loadSuperCategories() {
@@ -54,8 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
     openDB(() => {
       const tx = db.transaction(["superCategories"], "readonly");
       const store = tx.objectStore("superCategories");
-      const req = store.getAll();
-      req.onsuccess = (event) => {
+      store.getAll().onsuccess = (event) => {
         const superCats = event.target.result;
         superCategorySelect.innerHTML = `<option value="">Select Super Category</option>`;
         superCats.forEach((sc) => {
@@ -107,18 +143,19 @@ document.addEventListener("DOMContentLoaded", () => {
       otherCategoryWrapper.style.display = "none";
     }
   });
-  document.getElementById('addFeatureBtn').addEventListener('click', () => {
-    const featureInput = document.getElementById('featureInput');
+
+  document.getElementById("addFeatureBtn").addEventListener("click", () => {
+    const featureInput = document.getElementById("featureInput");
     const feature = featureInput.value.trim();
     if (!feature) return;
-    const featuresList = document.getElementById('featuresList');
-    const featureItem = document.createElement('div');
-    featureItem.className = 'feature-item';
+    const featuresList = document.getElementById("featuresList");
+    const featureItem = document.createElement("div");
+    featureItem.className = "feature-item";
     featureItem.innerText = feature;
     featuresList.appendChild(featureItem);
-    const hiddenFeatures = document.getElementById('features');
-    hiddenFeatures.value = hiddenFeatures.value ? hiddenFeatures.value + ',' + feature : feature;
-    featureInput.value = '';
+    const hiddenFeatures = document.getElementById("features");
+    hiddenFeatures.value = hiddenFeatures.value ? hiddenFeatures.value + "," + feature : feature;
+    featureInput.value = "";
   });
 
   addCarForm.addEventListener("submit", async (event) => {
@@ -127,7 +164,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let supercategoryId = superCategorySelect.value;
     let categoryId = categorySelect.value;
     const vehicleOwner = JSON.parse(sessionStorage.getItem("loggedInUser"));
-    if (!vehicleOwner) { alert("Please log in first."); return; }
+    if (!vehicleOwner) {
+      alert("Please log in first.");
+      return;
+    }
     if (supercategoryId === "Other") {
       supercategoryId = await saveNewSuperCategory(otherSuperCategoryInput.value.trim());
     }
@@ -148,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
         images_URL: imageURLs,
         uploaded_at: new Date().toISOString(),
         category_id: categoryId,
-        supercategory_id: supercategoryId
+        supercategory_id: supercategoryId,
       };
       saveVehicle(vehicleData);
       closeModal();
@@ -156,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.reload();
     });
   });
+
 
   function saveNewSuperCategory(name) {
     return new Promise((resolve) => {
@@ -169,6 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+
 
   function saveNewCategory(catName, superCatId) {
     return new Promise((resolve) => {
@@ -184,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
   function saveVehicle(vehicleData) {
     openDB(() => {
       const tx = db.transaction(["vehicles"], "readwrite");
@@ -191,6 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
       store.add(vehicleData);
     });
   }
+
 
   function saveImages() {
     const files = document.getElementById("imageUpload").files;
@@ -200,20 +244,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     let promises = [];
     for (let i = 0; i < files.length; i++) {
-      promises.push(new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          imageArray.push(event.target.result);
-          resolve();
-        };
-        reader.onerror = function(err) {
-          reject(err);
-        };
-        reader.readAsDataURL(files[i]);
-      }));
+      promises.push(
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            imageArray.push(event.target.result);
+            resolve();
+          };
+          reader.onerror = function (err) {
+            reject(err);
+          };
+          reader.readAsDataURL(files[i]);
+        })
+      );
     }
     return Promise.all(promises).then(() => JSON.stringify(imageArray));
   }
+
 
   function loadSellerListings() {
     openDB(() => {
@@ -227,37 +274,60 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
   function displayListings(listings) {
     const carContainer = document.getElementById("carContainer");
     carContainer.innerHTML = "";
-    if (!listings || listings.length === 0) {
-      carContainer.innerHTML = "<p>No listings found. Add a new car to start renting!</p>";
+
+    let filteredListings = listings.filter(
+      (vehicle) => vehicle.availability === currentAvailabilityFilter
+    );
+    if (!filteredListings || filteredListings.length === 0) {
+      carContainer.innerHTML = "<p>No listings found!</p>";
       return;
     }
-    listings.forEach(vehicle => {
+    filteredListings.forEach((vehicle) => {
       const carCard = document.createElement("div");
       carCard.classList.add("car-card");
       let images = [];
-      try { images = JSON.parse(vehicle.images_URL); } catch (err) { images = []; }
-      let imageSrc = (images && images.length > 0) ? images[0] : "https://via.placeholder.com/250";
+      try {
+        images = JSON.parse(vehicle.images_URL);
+      } catch (err) {
+        images = [];
+      }
+      let imageSrc = images && images.length > 0 ? images[0] : "https://via.placeholder.com/250";
+
+      let buttonHTML = "";
+      if (vehicle.availability === "Available") {
+        buttonHTML = `<button class="btn " onclick="deleteListing('${vehicle.vehicle_id}')">De-list</button>`;
+      } else {
+        buttonHTML = `<button class="btn " onclick="listAgain('${vehicle.vehicle_id}')">List Again</button>`;
+      }
       carCard.innerHTML = `
         <img src="${imageSrc}" alt="Car Image">
         <h3>${vehicle.vehicle_model}</h3>
         <p>Price: Rs ${vehicle.minimum_rental_price} /day</p>
         <p>Location: ${vehicle.location}</p>
         <p>Availability: <strong>${vehicle.availability}</strong></p>
-        <button class="btn btn--danger" onclick="deleteListing('${vehicle.vehicle_id}')">Delete</button>
+        ${buttonHTML}
       `;
       carContainer.appendChild(carCard);
     });
   }
+
 
   function deleteListing(vehicleId) {
     if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) return;
     openDB(() => {
       const tx = db.transaction(["vehicles"], "readwrite");
       const store = tx.objectStore("vehicles");
-      store.delete(vehicleId);
+      store.get(vehicleId).onsuccess = (event) => {
+        const vehicle = event.target.result;
+        if (vehicle) {
+          vehicle.availability = "Unavailable";
+          store.put(vehicle);
+        }
+      };
       tx.oncomplete = () => {
         alert("Listing deleted successfully!");
         loadSellerListings();
@@ -269,8 +339,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   window.deleteListing = deleteListing;
-  if (db && !db.objectStoreNames.contains("vehicles")) {
-    db.createObjectStore("vehicles", { keyPath: "vehicle_id" })
-      .createIndex("vehicle_owner_id", "vehicle_owner_id", { unique: false });
+
+
+  function listAgain(vehicleId) {
+    openDB(() => {
+      const tx = db.transaction(["vehicles"], "readwrite");
+      const store = tx.objectStore("vehicles");
+      store.get(vehicleId).onsuccess = (event) => {
+        const vehicle = event.target.result;
+        if (vehicle) {
+          vehicle.availability = "Available";
+          store.put(vehicle);
+        }
+      };
+      tx.oncomplete = () => {
+        alert("Listing has been re-listed successfully!");
+        loadSellerListings();
+      };
+      tx.onerror = (err) => {
+        console.error("Error listing again:", err);
+        alert("Could not list the car again. Try again.");
+      };
+    });
   }
+  window.listAgain = listAgain;
 });

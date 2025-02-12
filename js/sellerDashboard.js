@@ -79,7 +79,7 @@ function displayBids(bids) {
     return;
   }
 
-  // Create table elements.
+
   const table = document.createElement("table");
   table.classList.add("bids-table");
   const thead = document.createElement("thead");
@@ -87,7 +87,7 @@ function displayBids(bids) {
     <tr>
       <th>Car Name</th>
       <th>Booker Name</th>
-      <th>Booker's GovtID</th>
+      <th>Booker's DL Number</th>
       <th>Bid Amount</th>
       <th>Bid Date</th>
       <th>Status</th>
@@ -100,12 +100,12 @@ function displayBids(bids) {
   table.appendChild(tbody);
   bidsContainer.appendChild(table);
 
-  // Pagination: 10 rows per page.
+
   const rowsPerPage = 10;
   let currentPage = 1;
   const totalPages = Math.ceil(bids.length / rowsPerPage);
 
-  // Create pagination controls.
+
   const paginationControls = document.createElement("div");
   paginationControls.classList.add("pagination-controls");
   const prevButton = document.createElement("button");
@@ -135,10 +135,10 @@ function displayBids(bids) {
     tbody.innerHTML = "";
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, bids.length);
-    // Iterate over each bid for this page.
+
     for (let i = startIndex; i < endIndex; i++) {
       const bid = bids[i];
-      // Fetch vehicle and booker details in parallel.
+
       Promise.all([
         getVehicleDetails(bid.vehicle_id),
         getUserDetails(bid.bidder_id)

@@ -45,73 +45,88 @@
       <div class="container">
           <h1 class="dashboard__title">Listings</h1>
           <p class="dashboard__subtitle">Manage all your rental cars here.</p>
-          <button id="addCarBtn" class="btn btn--primary">+ Add New Car</button>
+          <div id="availabilityToggle" class="toggle-container">
+            <span class="toggle-text">Unavailable</span>
+            <label class="switch" for="availabilityCheckbox">
+              <input type="checkbox" id="availabilityCheckbox" checked />
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-text">Available</span>
+          </div>
+          
+          <button id="addCarBtn" class="btn btn--primary">+ Add New Vehicle</button>
           <div class="car-listings">
               <div id="carContainer" class="car-grid"></div>
           </div>
       </div>
   </main>
 
-  <!-- Add Car Modal -->
   <div id="addCarModal" class="modal" style="display: none;">
-      <div class="modal-content">
-          <span class="close-btn">&times;</span>
-          <h2>Add New Car</h2>
-          <form id="addCarForm" class="modal-form">
-              <div class="form-group">
-                  <label for="vehicleModel">Vehicle Model</label>
-                  <input type="text" id="vehicleModel" placeholder="Enter Vehicle Model" required />
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h2>Add New Vehicle</h2>
+      <form id="addCarForm" class="modal-form">
+        <div class="modal-body">
+          <div class="modal-column">
+            <div class="form-group">
+              <label for="vehicleModel">Vehicle Model</label>
+              <input type="text" id="vehicleModel" placeholder="Enter Vehicle Model" required />
+            </div>
+            <div class="form-group">
+              <label for="vehicleNumber">Vehicle Registration Number</label>
+              <input type="text" id="vehicleNumber" placeholder="Enter Vehicle Number" required />
+            </div>
+            <div class="form-group">
+              <label for="minPrice">Minimum Rental Price (Rs/day)</label>
+              <input type="number" id="minPrice" placeholder="Enter Rental Price" min="0" required />
+            </div>
+            <div class="form-group">
+              <label for="superCategory">Super Category</label>
+              <select id="superCategory" required>
+                <option value="">Select Super Category</option>
+              </select>
+              <div id="otherSuperCategoryWrapper" style="display: none;">
+                <label for="otherSuperCategoryInput">Enter New Super Category</label>
+                <input type="text" id="otherSuperCategoryInput" />
               </div>
-              <div class="form-group">
-                <label for="vehicleNumber">Vehicle Registration Number</label>
-                <input type="text" id="vehicleNumber" placeholder="Enter Vehicle Number" required />
+            </div>
+            <div class="form-group" id="categoryRow">
+              <label for="category">Category</label>
+              <select id="category" required>
+                <option value="">Select Category</option>
+              </select>
+              <div id="otherCategoryWrapper" style="display: none;">
+                <label for="otherCategoryInput">Enter New Category Name</label>
+                <input type="text" id="otherCategoryInput" />
               </div>
-              <div class="form-group">
-                  <label for="minPrice">Minimum Rental Price (Rs/day)</label>
-                  <input type="number" id="minPrice" placeholder="Enter Rental Price" min="0" required />
+            </div>
+          </div>
+          <div class="modal-column">
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" id="location" placeholder="Enter Car Location" required />
+            </div>
+            <div class="form-group">
+              <label for="featureInput">Features</label>
+              <div class="feature-input-group">
+                <input type="text" id="featureInput" placeholder="Enter a feature" />
+                <button type="button" id="addFeatureBtn" class="btn btn--primary">Add Feature</button>
               </div>
-              <div class="form-group">
-                <label for="superCategory">Super Category</label>
-                <select id="superCategory" required>
-                    <option value="">Select Super Category</option>
-                </select>
-                <div id="otherSuperCategoryWrapper" style="display: none;">
-                    <label for="otherSuperCategoryInput">Enter New Super Category</label>
-                    <input type="text" id="otherSuperCategoryInput" />
-                </div>
-              </div>
-              <div class="form-group" id="categoryRow">
-                <label for="category">Category</label>
-                <select id="category" required>
-                    <option value="">Select Category</option>
-                </select>
-                <div id="otherCategoryWrapper" style="display: none;">
-                    <label for="otherCategoryInput">Enter New Category Name</label>
-                    <input type="text" id="otherCategoryInput" />
-                </div>
-              </div>
-              <div class="form-group">
-                  <label for="location">Location</label>
-                  <input type="text" id="location" placeholder="Enter Car Location" required />
-              </div>
-              <!-- New Features Input Group -->
-              <div class="form-group">
-                  <label for="featureInput">Features</label>
-                  <div class="feature-input-group">
-                      <input type="text" id="featureInput" placeholder="Enter a feature" />
-                      <button type="button" id="addFeatureBtn" class="btn btn--primary">Add Feature</button>
-                  </div>
-                  <div id="featuresList" class="features-list"></div>
-                  <input type="hidden" id="features" name="features" required />
-              </div>
-              <div class="form-group">
-                  <label for="imageUpload">Upload Car Images</label>
-                  <input type="file" id="imageUpload" accept="image/*" multiple required />
-                  <div id="imagePreview"></div>
-              </div>
-              <button type="submit" class="btn btn--primary">Add Car</button>
-          </form>
-      </div>
+              <div id="featuresList" class="features-list"></div>
+              <input type="hidden" id="features" name="features" required />
+            </div>
+            <div class="form-group">
+              <label for="imageUpload">Upload Car Images</label>
+              <input type="file" id="imageUpload" accept="image/*" multiple required />
+              <div id="imagePreview"></div>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn--primary">Add Car</button>
+      </form>
+    </div>
   </div>
+
+
 </body>
 </html>

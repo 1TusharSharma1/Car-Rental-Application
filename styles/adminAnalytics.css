@@ -191,7 +191,7 @@
   }
   
   .stat-number {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 700;
     color: var(--color-primary-dark);
     margin: 20px 0;
@@ -244,6 +244,18 @@
     border-collapse: collapse;
     font-size: 1.2rem;
   }
+  
+  .dashboard-logout {
+    margin-top: 20px;
+    padding: 10px 15px;
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
   
   th,
   td {

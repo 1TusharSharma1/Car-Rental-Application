@@ -5,65 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Analytics Reports | RentO</title>
     <link rel="stylesheet" href="styles/adminAnalytics.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <script src="js/db.js" defer></script>
-  <script src="js/analyticsUtil.js" defer></script>
+    <script src="js/analyticsUtil.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/adminAnalytics.js" defer></script>
   </head>
   <body>
     <header class="header">
-        <div class="container">
-          <div class="header__content">
-            <a href="superAdmin.html" class="logo">
-              <img src="https://media.istockphoto.com/id/1332607862/vector/car-rental-logo-template-design.jpg?s=612x612&w=0&k=20&c=Z7HXnGff9rQIvLWgrYT0E8oge2NMlLg5v0ZB1dCe4zM=" alt="RentO Logo">
-            </a>
-            <nav class="nav">
-              <ul class="nav__list">
-                <li><a href="superAdmin.html" class="nav__link active">Admin</a></li>
-                <li><a href="adminAnalytics.html" class="nav__link">Reports</a></li>
-              </ul>
-            </nav>
+      <div class="container">
+        <div class="header__content">
+          <a href="superAdmin.html" class="logo">
+            <img src="https://media.istockphoto.com/id/1332607862/vector/car-rental-logo-template-design.jpg?s=612x612&w=0&k=20&c=Z7HXnGff9rQIvLWgrYT0E8oge2NMlLg5v0ZB1dCe4zM=" alt="RentO Logo">
+          </a>
+          <nav class="nav">
+            <ul class="nav__list">
+              <li><a href="superAdmin.html" class="nav__link active">Admin</a></li>
+              <li><a href="adminAnalytics.html" class="nav__link">Reports</a></li>
+            </ul>
+          </nav>
+          <div class="header__profile">
             <div class="header__profile">
-              <a href="superAdmin.html" class="profile__link">
-                <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="Admin Profile" class="profile__icon">
-                <span class="profile__text">Admin</span>
-              </a>
+              <button onclick="logout()" class="dashboard-logout">Logout</button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
+    </header>
     <main class="reports">
       <div class="container">
         <h1 class="page-title">Admin Analytics Reports</h1>
         <section class="stats-section">
           <div class="chart-card">
-            <div id="avgBookingDuration" class="stat-number">--</div>
             <p class="chart-description">Your Average Booking Duration (days)</p>
+            <div id="avgBookingDuration" class="stat-number">--</div>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: Average booking duration (booking_end_date minus booking_start_date).</span>
             </p>
           </div>
           <div class="chart-card">
-            <div id="avgBidToBookingTime" class="stat-number">--</div>
             <p class="chart-description">Your Average Bidding-to-Booking Time (days)</p>
+            <div id="avgBidToBookingTime" class="stat-number">--</div>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: Average time (in days) from bid date to booking start date.</span>
             </p>
           </div>
           <div class="chart-card">
-            <div id="bidAcceptTime" class="stat-number">--</div>
             <p class="chart-description">Time from Bid to Booking Acceptance (hours)</p>
+            <div id="bidAcceptTime" class="stat-number">--</div>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: Average hours from bid date to booking acceptance.</span>
             </p>
           </div>
           <div class="chart-card">
-            <div id="bidRejectionRate" class="stat-number">--</div>
             <p class="chart-description">Your Bid Rejection Rate (%)</p>
+            <div id="bidRejectionRate" class="stat-number">--</div>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: (Rejected bids / Total bids) x 100.</span>
             </p>
@@ -75,43 +71,50 @@
         </section>
         <section class="charts-section">
           <div class="chart-card">
-            <canvas id="vehiclesOverTimeChart"></canvas>
             <p class="chart-description">Vehicles Listed Over Time</p>
+            <canvas id="vehiclesOverTimeChart"></canvas>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: Count of vehicles grouped by upload date.</span>
             </p>
           </div>
           <div class="chart-card">
-            <canvas id="bidVsRentalChart"></canvas>
+            <p class="chart-description">Revenue per Day</p>
+            <canvas id="revenuePerDayChart"></canvas>
+            <p class="calc-details">
+              ?<span class="tooltiptext">Calculation: Sum of (Minimum Rental Price x Booking Duration) grouped by booking start date.</span>
+            </p>
+          </div>
+          <div class="chart-card">
             <p class="chart-description">Avg Bid Amount vs. Minimum Rental Price</p>
+            <canvas id="bidVsRentalChart"></canvas>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: Average bid amount per vehicle compared to its minimum rental price.</span>
             </p>
           </div>
           <div class="chart-card">
-            <canvas id="userRolesChart"></canvas>
             <p class="chart-description">User Roles Split</p>
+            <canvas id="userRolesChart"></canvas>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: Percentage split between buyers and sellers.</span>
             </p>
           </div>
           <div class="chart-card">
-            <canvas id="bidToBookingChart"></canvas>
             <p class="chart-description">Bid-to-Booking Conversion Rate</p>
+            <canvas id="bidToBookingChart"></canvas>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: (Total Bookings / Total Bids) x 100.</span>
             </p>
           </div>
           <div class="chart-card">
-            <canvas id="topBookedCarsChart"></canvas>
             <p class="chart-description">Top 3 Most Booked Vehicles</p>
+            <canvas id="topBookedCarsChart"></canvas>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: Vehicles ranked by booking count in descending order.</span>
             </p>
           </div>
           <div class="chart-card">
-            <canvas id="convosVsBookingsChart"></canvas>
             <p class="chart-description">Conversations vs. Bookings Ratio</p>
+            <canvas id="convosVsBookingsChart"></canvas>
             <p class="calc-details">
               ?<span class="tooltiptext">Calculation: (Total Conversations / Total Bookings) x 100.</span>
             </p>
@@ -122,7 +125,6 @@
           <table id="recentBookingsTable">
             <thead>
               <tr>
-                <th>Booking ID</th>
                 <th>Vehicle Model</th>
                 <th>Renter</th>
                 <th>Seller</th>

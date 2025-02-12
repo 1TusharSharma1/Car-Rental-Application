@@ -24,10 +24,8 @@
           </ul>
         </nav>
         <div class="header__profile">
-          <a href="superAdmin.html" class="profile__link">
-            <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="Admin Profile" class="profile__icon">
-            <span class="profile__text">Admin</span>
-          </a>
+          <button onclick="logout()" class="dashboard-logout">Logout</button>
+
         </div>
       </div>
     </div>
@@ -47,12 +45,11 @@
         <table id="usersTable">
           <thead>
             <tr>
-              <th>User ID</th>
+
               <th>Username</th>
               <th>Email</th>
               <th>Role(s)</th>
               <th>Created At</th>
-              <th>Action</th>
               <th>Listings</th>
             </tr>
           </thead>
@@ -61,16 +58,14 @@
         <div id="usersPagination" class="pagination"></div>
       </section>
       <section class="listings">
-        <h2>All Listings</h2>
+        <h2>Current Listings</h2>
         <table id="listingsTable">
           <thead>
             <tr>
-              <th>Listing ID</th>
               <th>Vehicle Model</th>
               <th>Owner</th>
               <th>Price</th>
               <th>Location</th>
-              <th>Availability</th>
               <th>Uploaded At</th>
               <th>Action</th>
             </tr>
@@ -79,13 +74,8 @@
         </table>
         <div id="listingsPagination" class="pagination"></div>
       </section>
-      <button onclick="logout()" class="dashboard-logout">Logout</button>
     </div>
   </main>
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2025 RentO. All rights reserved.</p>
-    </div>
-  </footer>
+
 </body>
 </html>

@@ -84,6 +84,7 @@ function openBidModal() {
     alert("Please log in to place a bid.");
     return;
   }
+
   document.getElementById("dlInputContainer").style.display = loggedInUser.user_govtId ? "none" : "block";
 
   document.getElementById("bidModal").style.display = "flex";
@@ -104,7 +105,7 @@ async function placeBid(event) {
   const vehicleId = document.getElementById("vehicleId").value;
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   const minBid = Number(document.getElementById("minBidAmount").dataset.minPrice);
-  
+
   if (!loggedInUser) {
     alert("You must be logged in to place a bid.");
     return;
@@ -117,23 +118,34 @@ async function placeBid(event) {
     alert(`Your bid must be at least Rs ${minBid}!`);
     return;
   }
-  if (!loggedInUser.user_govtId) {
-    const driverLicenseInput = document.getElementById("driverLicense").value;
-    if (!driverLicenseInput) {
-      alert("Please enter your Driver License details.");
-      return;
-    }
-    loggedInUser.user_govtId = driverLicenseInput;
-    sessionStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
-    openDB(() => {
-      const tx = db.transaction(["users"], "readwrite");
-      const store = tx.objectStore("users");
-      store.put(loggedInUser);
-    });
+
+  if (new Date(bidEndDate) < new Date(bidStartDate)) {
+    alert("Booking end date cannot be before the start date.");
+    return;
   }
-  
+
   try {
     const sellerId = await getVehicleOwner(vehicleId);
+    if (loggedInUser.user_id === sellerId) {
+      alert("You cannot place a bid on your own car.");
+      return;
+    }
+    
+    if (!loggedInUser.user_govtId) {
+      const driverLicenseInput = document.getElementById("driverLicense").value;
+      if (!driverLicenseInput) {
+        alert("Please enter your Driver License details.");
+        return;
+      }
+      loggedInUser.user_govtId = driverLicenseInput;
+      sessionStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+      openDB(() => {
+        const tx = db.transaction(["users"], "readwrite");
+        const store = tx.objectStore("users");
+        store.put(loggedInUser);
+      });
+    }
+    
     const bidData = {
       bid_id: crypto.randomUUID(),
       vehicle_id: vehicleId,
@@ -145,14 +157,12 @@ async function placeBid(event) {
       booking_start_date: bidStartDate,
       booking_end_date: bidEndDate,
     };
-    if(bidStartDate < bidEndDate) {
-      alert("Booking start date must be before booking end date.");
+
+    if (bidData.bidder_id === bidData.seller_id) {
+      alert("Invalid bid: Bidder and Seller cannot be the same.");
       return;
     }
-    if( bidder_id === seller_id ){
-      alert("You cannot bid on your own vehicle.");
-      return;
-    }
+
     openDB(() => {
       const tx = db.transaction(["bidding"], "readwrite");
       const store = tx.objectStore("bidding");
@@ -164,6 +174,7 @@ async function placeBid(event) {
           .catch(err => console.error("Error creating conversation:", err));
         closeBidModal();
         loadBiddingDetails(vehicleId);
+
         window.location.href = `chat.html?conversationId=${bidData.vehicle_id}_${bidData.bidder_id}_${bidData.seller_id}`;
       };
       addRequest.onerror = () => {
@@ -178,6 +189,9 @@ async function placeBid(event) {
 
 function createConversationIfNotExists(bidData) {
   return new Promise((resolve, reject) => {
+    if (bidData.bidder_id === bidData.seller_id) {
+      return reject("Cannot create a conversation when bidder and seller are the same.");
+    }
     const conversation_id = `${bidData.vehicle_id}_${bidData.bidder_id}_${bidData.seller_id}`;
     openDB(() => {
       const tx = db.transaction(["conversations"], "readwrite");
@@ -332,4 +346,30 @@ function chatWithOwner() {
       console.error("Error fetching seller ID:", err);
       alert("Error initiating chat. Please try again.");
     });
+}
+
+function getVehicleDetails(vehicleId) {
+  return new Promise((resolve, reject) => {
+    openDB(() => {
+      const tx = db.transaction(["vehicles"], "readonly");
+      const store = tx.objectStore("vehicles");
+      const request = store.get(vehicleId);
+      request.onsuccess = (event) => resolve(event.target.result);
+      request.onerror = (event) => reject(event.target.error);
+    });
+  });
+}
+
+function getUserDetails(userId) {
+  return new Promise((resolve, reject) => {
+    openDB(() => {
+      if (!db.objectStoreNames.contains("users"))
+        return reject("Users store not found.");
+      const tx = db.transaction(["users"], "readonly");
+      const store = tx.objectStore("users");
+      const request = store.get(userId);
+      request.onsuccess = (event) => resolve(event.target.result);
+      request.onerror = (event) => reject(event.target.error);
+    });
+  });
 }
