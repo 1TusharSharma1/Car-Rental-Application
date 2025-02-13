@@ -113,7 +113,7 @@ function isNonEmptyString(value) {
   
   /**
    * Validate a driver's license input.
-   * (In this case, simply checks that the input is a non-empty string.)
+   * (Simply checks that the input is a non-empty string.)
    * @param {string} driverLicense 
    * @returns {boolean}
    */
@@ -141,21 +141,19 @@ function isNonEmptyString(value) {
     return !isNaN(value) && typeof value === 'number';
   }
   
-  // Export all the validation functions (for ES modules)
-  export {
-    isNonEmptyString,
-    isValidEmail,
-    isValidUsername,
-    isValidPassword,
-    passwordsMatch,
-    isValidBusinessName,
-    isPositiveNumber,
-    isValidBidAmount,
-    isValidDateRange,
-    areFieldsFilled,
-    areDifferentIds,
-    isValidDriverLicense,
-    hasRequiredRole,
-    isValidNumber
-  };
+  // Expose functions globally
+  window.isNonEmptyString = isNonEmptyString;
+  window.isValidEmail = isValidEmail;
+  window.isValidUsername = isValidUsername;
+  window.isValidPassword = isValidPassword;
+  window.passwordsMatch = passwordsMatch;
+  window.isValidBusinessName = isValidBusinessName;
+  window.isPositiveNumber = isPositiveNumber;
+  window.isValidBidAmount = isValidBidAmount;
+  window.isValidDateRange = isValidDateRange;
+  window.areFieldsFilled = areFieldsFilled;
+  window.areDifferentIds = areDifferentIds;
+  window.isValidDriverLicense = isValidDriverLicense;
+  window.hasRequiredRole = hasRequiredRole;
+  window.isValidNumber = isValidNumber;
   

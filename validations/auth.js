@@ -11,16 +11,17 @@ document.addEventListener("DOMContentLoaded", function () {
     goToLogin.addEventListener("click", () => toggleForms("login"));
   if (goToSignUp)
     goToSignUp.addEventListener("click", () => toggleForms("signup"));
-const user = JSON.parse(sessionStorage.getItem("loggedInUser"));
-if(user){
+    
+  const user = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  if(user){
     if (user.user_role.includes("seller")) {
-        window.location.href = "../seller/dashboard/sellerDashboard.html";
-      } else if (user.user_role.includes("buyer")) {
-        window.location.href = "../buyer/homePage/buyerHomePage.html";
-      } else if(user.user_role.includes("admin")){
-        window.location.href = "../admin/superadmin.html";
-      } 
-}
+      window.location.href = "../seller/dashboard/sellerDashboard.html";
+    } else if (user.user_role.includes("buyer")) {
+      window.location.href = "../buyer/homePage/buyerHomePage.html";
+    } else if(user.user_role.includes("admin")){
+      window.location.href = "../admin/superadmin.html";
+    } 
+  }
 });
 
 function toggleForms(formType) {
@@ -41,7 +42,6 @@ function toggleForms(formType) {
   }
 }
 
-  
 function hashPassword(password) {
   return CryptoJS.SHA256(password).toString();
 }
@@ -52,33 +52,24 @@ function signUpBuyer(event) {
   const email = document.getElementById("signUpEmail").value.trim();
   const username = document.getElementById("signUpUsername").value.trim();
   const password = document.getElementById("signUpPassword").value;
-  const confirmPassword = document.getElementById(
-    "confirmedSignUpPassword"
-  ).value;
+  const confirmPassword = document.getElementById("confirmedSignUpPassword").value;
 
-  const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
-  if (!emailRegex.test(email)) {
+  if (!isValidEmail(email)) {
     alert("Invalid email format! Example: user@example.com");
     return;
   }
 
-  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-  if (!usernameRegex.test(username)) {
-    alert(
-      "Username must be 3-20 characters long and can contain letters, numbers, and underscores."
-    );
+  if (!isValidUsername(username)) {
+    alert("Username must be 3-20 characters long and can contain letters, numbers, and underscores.");
     return;
   }
 
-  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
-  if (!passwordRegex.test(password)) {
-    alert(
-      "Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character."
-    );
+  if (!isValidPassword(password)) {
+    alert("Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character.");
     return;
   }
 
-  if (password !== confirmPassword) {
+  if (!passwordsMatch(password, confirmPassword)) {
     alert("Passwords do not match!");
     return;
   }
@@ -144,12 +135,12 @@ function loginUser(event) {
       const user = event.target.result;
 
       if (!user) {
-        alert(" User not found! Please sign up first.");
+        alert("User not found! Please sign up first.");
         return;
       }
 
       if (user.password !== hashPassword(password)) {
-        alert(" Incorrect password!");
+        alert("Incorrect password!");
         return;
       }
 
@@ -176,9 +167,7 @@ function signUpSeller(event) {
   const email = document.getElementById("sellerEmail").value.trim();
   const businessName = document.getElementById("businessName").value.trim();
   const password = document.getElementById("signUpPassword").value;
-  const confirmPassword = document.getElementById(
-    "confirmedSignUpPassword"
-  ).value;
+  const confirmPassword = document.getElementById("confirmedSignUpPassword").value;
 
   const line1 = document.getElementById("line1").value.trim();
   const line2 = document.getElementById("line2").value.trim();
@@ -200,26 +189,22 @@ function signUpSeller(event) {
     return;
   }
 
-  const emailRegex = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
-  if (!emailRegex.test(email)) {
+  if (!isValidEmail(email)) {
     alert("Invalid email format! Example: user@example.com");
     return;
   }
 
-  if (businessName.length < 3) {
+  if (!isValidBusinessName(businessName)) {
     alert("Business name must be at least 3 characters long.");
     return;
   }
 
-  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
-  if (!passwordRegex.test(password)) {
-    alert(
-      "Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character."
-    );
+  if (!isValidPassword(password)) {
+    alert("Password must be at least 6 characters, include 1 uppercase letter, 1 number, and 1 special character.");
     return;
   }
 
-  if (password !== confirmPassword) {
+  if (!passwordsMatch(password, confirmPassword)) {
     alert("Passwords do not match!");
     return;
   }
@@ -289,9 +274,7 @@ function signUpSeller(event) {
         usersStore.add(newUser);
 
         sessionStorage.setItem("loggedInUser", JSON.stringify(newUser));
-        alert(
-          "Seller registration successful! Redirecting to seller dashboard..."
-        );
+        alert("Seller registration successful! Redirecting to seller dashboard...");
         window.location.href = "../seller/dashboard/sellerDashboard.html";
       }
     };

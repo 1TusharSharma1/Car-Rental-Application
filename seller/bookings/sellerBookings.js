@@ -70,7 +70,6 @@ function loadSellerAnalytics() {
 function loadSellerBookings() {
   const seller = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
-
   openDB(() => {
     if (!db.objectStoreNames.contains("bookings")) {
       console.error("Bookings store not found.");

@@ -110,16 +110,12 @@ async function placeBid(event) {
     alert("You must be logged in to place a bid.");
     return;
   }
-  if (isNaN(bidAmount) || bidAmount <= 0) {
-    alert("Please enter a valid bid amount.");
-    return;
-  }
-  if (bidAmount < minBid) {
-    alert(`Your bid must be at least Rs ${minBid}!`);
+  if (!isValidBidAmount(bidAmount, minBid)) {
+    alert(`Your bid must be at least Rs ${minBid} and a valid positive number!`);
     return;
   }
 
-  if (new Date(bidEndDate) < new Date(bidStartDate)) {
+  if (!isValidDateRange(bidStartDate, bidEndDate)) {
     alert("Booking end date cannot be before the start date.");
     return;
   }
@@ -133,8 +129,8 @@ async function placeBid(event) {
     
     if (!loggedInUser.user_govtId) {
       const driverLicenseInput = document.getElementById("driverLicense").value;
-      if (!driverLicenseInput) {
-        alert("Please enter your Driver License details.");
+      if (!isValidDriverLicense(driverLicenseInput)) {
+        alert("Please enter your valid Driver License details.");
         return;
       }
       loggedInUser.user_govtId = driverLicenseInput;
@@ -158,7 +154,7 @@ async function placeBid(event) {
       booking_end_date: bidEndDate,
     };
 
-    if (bidData.bidder_id === bidData.seller_id) {
+    if (!areDifferentIds(bidData.bidder_id, bidData.seller_id)) {
       alert("Invalid bid: Bidder and Seller cannot be the same.");
       return;
     }
@@ -189,7 +185,7 @@ async function placeBid(event) {
 
 function createConversationIfNotExists(bidData) {
   return new Promise((resolve, reject) => {
-    if (bidData.bidder_id === bidData.seller_id) {
+    if (!areDifferentIds(bidData.bidder_id, bidData.seller_id)) {
       return reject("Cannot create a conversation when bidder and seller are the same.");
     }
     const conversation_id = `${bidData.vehicle_id}_${bidData.bidder_id}_${bidData.seller_id}`;
@@ -335,7 +331,6 @@ function chatWithOwner() {
             };
             store.add(convRecord).onsuccess = () => {
               window.location.href = `/messaging/chat.html?conversationId=${conversationId}`;
-
             };
           } else {
             window.location.href = `/messaging/chat.html?conversationId=${conversationId}`;

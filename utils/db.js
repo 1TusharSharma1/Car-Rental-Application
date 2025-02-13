@@ -55,7 +55,7 @@ function openDB(callback) {
       bookingsStore.createIndex("bid_id", "bid_id", { unique: false });
     }
 
-    // 7) CONVERSATIONS (new messaging store)
+    // 7) CONVERSATIONS
     if (!db.objectStoreNames.contains("conversations")) {
       const convStore = db.createObjectStore("conversations", { keyPath: "conversation_id" });
       convStore.createIndex("sender_id", "sender_id", { unique: false });
@@ -63,7 +63,7 @@ function openDB(callback) {
       convStore.createIndex("vehicle_id", "vehicle_id", { unique: false });
     }
 
-    // 8) MESSAGES (new messaging store)
+    // 8) MESSAGES
     if (!db.objectStoreNames.contains("messages")) {
       const messagesStore = db.createObjectStore("messages", { keyPath: "message_id" });
       messagesStore.createIndex("conversation_id", "conversation_id", { unique: false });

@@ -50,7 +50,6 @@ function loadBids(status) {
     request.onsuccess = (event) => {
       const cursor = event.target.result;
       if (cursor) {
-
         if (cursor.value.bid_status === "Active" && now > new Date(cursor.value.booking_start_date)) {
           updateBidStatus(cursor.value.bid_id, "Inactive");
           cursor.value.bid_status = "Inactive";
@@ -79,7 +78,6 @@ function displayBids(bids) {
     return;
   }
 
-
   const table = document.createElement("table");
   table.classList.add("bids-table");
   const thead = document.createElement("thead");
@@ -100,11 +98,9 @@ function displayBids(bids) {
   table.appendChild(tbody);
   bidsContainer.appendChild(table);
 
-
   const rowsPerPage = 10;
   let currentPage = 1;
   const totalPages = Math.ceil(bids.length / rowsPerPage);
-
 
   const paginationControls = document.createElement("div");
   paginationControls.classList.add("pagination-controls");

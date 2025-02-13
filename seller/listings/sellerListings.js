@@ -38,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
   let currentAvailabilityFilter = document.getElementById("availabilityCheckbox").checked
     ? "Available"
     : "Unavailable";
@@ -147,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("addFeatureBtn").addEventListener("click", () => {
     const featureInput = document.getElementById("featureInput");
     const feature = featureInput.value.trim();
-    if (!feature) return;
+    if (!isNonEmptyString(feature)) return;
     const featuresList = document.getElementById("featuresList");
     const featureItem = document.createElement("div");
     featureItem.className = "feature-item";
@@ -197,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-
   function saveNewSuperCategory(name) {
     return new Promise((resolve) => {
       const supercategoryId = crypto.randomUUID();
@@ -210,7 +208,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
-
 
   function saveNewCategory(catName, superCatId) {
     return new Promise((resolve) => {
@@ -226,7 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
   function saveVehicle(vehicleData) {
     openDB(() => {
       const tx = db.transaction(["vehicles"], "readwrite");
@@ -234,7 +230,6 @@ document.addEventListener("DOMContentLoaded", () => {
       store.add(vehicleData);
     });
   }
-
 
   function saveImages() {
     const files = document.getElementById("imageUpload").files;
@@ -261,7 +256,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return Promise.all(promises).then(() => JSON.stringify(imageArray));
   }
 
-
   function loadSellerListings() {
     openDB(() => {
       const tx = db.transaction(["vehicles"], "readonly");
@@ -273,7 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     });
   }
-
 
   function displayListings(listings) {
     const carContainer = document.getElementById("carContainer");
@@ -315,7 +308,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
   function deleteListing(vehicleId) {
     if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) return;
     openDB(() => {
@@ -339,7 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   window.deleteListing = deleteListing;
-
 
   function listAgain(vehicleId) {
     openDB(() => {
