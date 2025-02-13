@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Dashboard | RentO</title>
+    <link rel="stylesheet" href="./sellerDashboard.css">
+    <link rel="stylesheet" href="../listings/sellerListings.css">
+    <script src="../dashboard/sellerDashboard.js" ></script>
+    <script src="../../utils/db.js" defer></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header__content">
+                <a href="../../buyer/homePage/buyerHomePage.html" class="logo">
+                    <img src="https://media.istockphoto.com/id/1332607862/vector/car-rental-logo-template-design.jpg?s=612x612&w=0&k=20&c=Z7HXnGff9rQIvLWgrYT0E8oge2NMlLg5v0ZB1dCe4zM=" alt="RentO Logo" />
+                </a>
+
+                <nav class="nav">
+                    <ul class="nav__list">
+                        <li><a href="../dashboard/sellerDashboard.html" class="nav__link">Dashboard</a></li>
+                        <li><a href="../listings/sellerListings.html" class="nav__link">My Listings</a></li>
+                        <li><a href="../bookings/sellerBookings.html" class="nav__link">Bookings</a></li>
+                        <li><a href="../../messaging/conversations.html" class="nav__link">Messages</a></li>
+                        <li><a href="../analytics/sellerAnalytics.html" class="nav__link">Reports</a></li>
+
+                    </ul>
+                </nav>
+
+                <div class="header__profile">
+                    <a href="../../utils/userDashboard.html" class="profile__link">
+                        <img src="https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp" alt="Profile" class="profile__icon" />
+                        <span class="profile__text">Profile</span>
+                    </a>
+                </div>
+
+                <button class="nav-toggle">
+                    <span class="nav-toggle__bar"></span>
+                    <span class="nav-toggle__bar"></span>
+                    <span class="nav-toggle__bar"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+
+
+    <main class="dashboard">
+        <div class="container">
+            <h1 class="dashboard__title">My Biddings</h1>
+
+            <div id="bidsContainer" class="bids-container">
+            </div>
+        </div>
+    </main>
+
+
+
+</body>
+</html>
